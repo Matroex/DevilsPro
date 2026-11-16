@@ -1,0 +1,189 @@
+
+/* DEVILS — PANEL GAME MASTER */
+.gm-overlay,
+.gm-page {
+  font-family: Arial, sans-serif;
+  color: #e8dfcd;
+}
+
+.gm-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: rgba(0,0,0,.78);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 18px;
+}
+
+.gm-overlay[hidden] {
+  display: none !important;
+}
+
+.gm-panel {
+  width: min(780px, 100%);
+  max-height: 90vh;
+  overflow-y: auto;
+  background: #1b1d20;
+  border: 2px solid #a88648;
+  box-shadow: 0 15px 50px #000;
+  border-radius: 6px;
+  padding: 22px;
+}
+
+.gm-page {
+  min-height: 100vh;
+  background: #111315;
+  padding: 30px 20px;
+}
+
+.gm-page .gm-panel {
+  width: min(1100px, 100%);
+  max-height: none;
+  margin: 0 auto;
+}
+
+.gm-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.gm-heading h1,
+.gm-heading h2 {
+  color: #e5bd71;
+  margin: 0;
+  font: bold 23px Georgia, serif;
+}
+
+.gm-heading p {
+  color: #aaa08f;
+  font-size: 12px;
+  margin: 6px 0 0;
+}
+
+.gm-section {
+  background: #232528;
+  border: 1px solid #544832;
+  border-radius: 5px;
+  padding: 16px;
+  margin: 14px 0;
+}
+
+.gm-section h3 {
+  color: #e5bd71;
+  margin: 0 0 15px;
+  font-size: 16px;
+}
+
+.gm-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.gm-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.gm-field label {
+  font-size: 12px;
+  color: #d6c39c;
+}
+
+.gm-field input {
+  width: 100%;
+  min-width: 0;
+  padding: 10px;
+  color: white;
+  background: #111315;
+  border: 1px solid #75613c;
+  border-radius: 3px;
+  font-size: 14px;
+}
+
+.gm-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin-top: 14px;
+}
+
+.gm-panel button {
+  cursor: pointer;
+  background: #514025;
+  border: 1px solid #aa884a;
+  color: #f3e2b9;
+  padding: 10px 14px;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.gm-panel button:hover {
+  background: #75582f;
+}
+
+.gm-panel button.gm-danger {
+  background: #562626;
+  border-color: #a65050;
+}
+
+.gm-panel button.gm-danger:hover {
+  background: #803232;
+}
+
+.gm-panel button.gm-primary {
+  background: #84632e;
+  color: white;
+  font-weight: bold;
+}
+
+.gm-message {
+  color: #a5dca7;
+  min-height: 20px;
+  margin: 12px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.gm-message.error {
+  color: #ff9a9a;
+}
+
+.gm-note {
+  color: #aaa397;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.gm-divider {
+  border: 0;
+  border-top: 1px solid #51432c;
+  margin: 18px 0;
+}
+
+@media(max-width:700px) {
+  .gm-grid {
+    grid-template-columns: repeat(2, minmax(0,1fr));
+  }
+
+  .gm-panel {
+    padding: 14px;
+  }
+
+  .gm-heading h1,
+  .gm-heading h2 {
+    font-size: 18px;
+  }
+}
+
+@media(max-width:420px) {
+  .gm-grid {
+    grid-template-columns: 1fr;
+  }
+}

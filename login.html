@@ -1,0 +1,140 @@
+
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Moja Gra Idle — Logowanie</title>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;min-height:100vh;
+ display:flex;align-items:center;justify-content:center;
+ background:#111315;color:#e6dfd0;
+ font-family:Arial,sans-serif;
+}
+.panel{
+ width:360px;max-width:92%;
+ background:#202426;
+ border:1px solid #80683b;
+ border-radius:10px;
+ padding:28px;
+}
+h1{text-align:center;color:#d8b66c;font-size:26px}
+.subtitle{text-align:center;color:#999;font-size:13px}
+.tabs{display:flex;gap:8px;margin:25px 0}
+button{
+ border:0;border-radius:5px;padding:12px;
+ cursor:pointer;color:white;background:#80683b;
+}
+.tabs button{flex:1;background:#34383a}
+.tabs button.active{background:#80683b}
+input{
+ display:block;width:100%;padding:12px;
+ margin:12px 0;background:#151819;
+ color:white;border:1px solid #555;
+ border-radius:5px;
+}
+.submit{width:100%;margin-top:12px;font-weight:bold}
+.message{text-align:center;min-height:20px;font-size:13px}
+.error{color:#ff7777}
+.success{color:#75d395}
+.hidden{display:none}
+</style>
+</head>
+<body>
+
+<div class="panel">
+ <h1>⚔️ MOJA GRA IDLE</h1>
+ <p class="subtitle">Mroczne średniowiecze</p>
+
+ <div class="tabs">
+  <button id="loginTab" class="active" onclick="showTab('login')">Logowanie</button>
+  <button id="registerTab" onclick="showTab('register')">Rejestracja</button>
+ </div>
+
+ <form id="loginForm" onsubmit="login(event)">
+  <input id="loginName" placeholder="Login" required autocomplete="username">
+  <input id="loginPassword" type="password" placeholder="Hasło" required autocomplete="current-password">
+  <button class="submit" type="submit">Zaloguj się</button>
+ </form>
+
+ <form id="registerForm" class="hidden" onsubmit="register(event)">
+  <input id="registerName" placeholder="Wybierz login" required minlength="3" maxlength="20">
+  <input id="registerPassword" type="password" placeholder="Wybierz hasło" required minlength="6" autocomplete="new-password">
+  <input id="repeatPassword" type="password" placeholder="Powtórz hasło" required minlength="6" autocomplete="new-password">
+  <button class="submit" type="submit">Załóż konto</button>
+ </form>
+
+ <p id="message" class="message"></p>
+</div>
+
+<script>
+function showTab(tab){
+ document.getElementById("loginForm").classList.toggle("hidden",tab!=="login");
+ document.getElementById("registerForm").classList.toggle("hidden",tab!=="register");
+ document.getElementById("loginTab").classList.toggle("active",tab==="login");
+ document.getElementById("registerTab").classList.toggle("active",tab==="register");
+ document.getElementById("message").textContent="";
+}
+
+function message(text,success=false){
+ const el=document.getElementById("message");
+ el.textContent=text;
+ el.className="message "+(success?"success":"error");
+}
+
+function getUsers(){
+ try{
+  return JSON.parse(localStorage.getItem("idleUsers"))||{};
+ }catch{
+  return {};
+ }
+}
+
+function register(event){
+ event.preventDefault();
+
+ const name=document.getElementById("registerName").value.trim();
+ const password=document.getElementById("registerPassword").value;
+ const repeat=document.getElementById("repeatPassword").value;
+
+ if(password!==repeat){
+  message("Hasła nie są identyczne.");
+  return;
+ }
+
+ const users=getUsers();
+ const key=name.toLowerCase();
+
+ if(users[key]){
+  message("Taki login już istnieje.");
+  return;
+ }
+
+ users[key]={name,password};
+ localStorage.setItem("idleUsers",JSON.stringify(users));
+
+ showTab("login");
+ document.getElementById("loginName").value=name;
+ message("Konto utworzone! Możesz się zalogować.",true);
+}
+
+function login(event){
+ event.preventDefault();
+
+ const name=document.getElementById("loginName").value.trim().toLowerCase();
+ const password=document.getElementById("loginPassword").value;
+ const users=getUsers();
+
+ if(!users[name]||users[name].password!==password){
+  message("Nieprawidłowy login lub hasło.");
+  return;
+ }
+
+ sessionStorage.setItem("idleLoggedUser",name);
+ window.location.href="postacie.html";
+}
+</script>
+</body>
+</html>

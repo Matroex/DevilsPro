@@ -1,0 +1,188 @@
+
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wybór postaci</title>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;background:#111315;color:#e6dfd0;
+ font-family:Arial,sans-serif;
+}
+header{
+ padding:25px;text-align:center;
+ background:#1c2022;border-bottom:2px solid #80683b;
+}
+h1{color:#d8b66c;margin:0}
+main{max-width:900px;margin:30px auto;padding:15px}
+.slots{
+ display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+ gap:15px;
+}
+.slot{
+ background:#202426;border:1px solid #555;
+ border-radius:8px;padding:20px;text-align:center;
+}
+.slot h2{color:#d8b66c}
+button{
+ background:#80683b;color:white;border:0;
+ padding:11px 15px;border-radius:5px;
+ cursor:pointer;margin:5px;
+}
+button:hover{background:#a3854d}
+.danger{background:#7c3030}
+.danger:hover{background:#a33d3d}
+.small{color:#aaa;font-size:13px}
+</style>
+</head>
+<body>
+
+<header>
+<h1>⚔️ MOJA GRA IDLE</h1>
+<p>Wybierz postać</p>
+</header>
+
+<main>
+<div id="slots" class="slots"></div>
+<div style="text-align:center;margin-top:25px">
+<button onclick="logout()">🚪 Wyloguj się</button>
+</div>
+</main>
+
+<script>
+const user=sessionStorage.getItem("idleLoggedUser");
+
+if(!user){
+ window.location.replace("login.html");
+}
+
+const SLOTS_KEY="idleSlots_"+user;
+const OLD_SAVE_KEY="idleCharacter_"+user;
+
+function getSlots(){
+ try{
+  const saved=JSON.parse(localStorage.getItem(SLOTS_KEY));
+  if(Array.isArray(saved)){
+   return Array.from({length:5},(_,i)=>saved[i]||null);
+  }
+ }catch(e){}
+ return [null,null,null,null,null];
+}
+
+function saveSlots(slots){
+ localStorage.setItem(SLOTS_KEY,JSON.stringify(slots));
+}
+
+function migrateOldCharacter(){
+ if(localStorage.getItem(SLOTS_KEY)!==null)return;
+
+ const slots=getSlots();
+ const old=localStorage.getItem(OLD_SAVE_KEY);
+
+ if(old){
+  try{
+   const data=JSON.parse(old);
+   if(data.hero){
+    slots[0]={
+     hero:data.hero,
+     inventory:data.inventory||[]
+    };
+   }
+  }catch(e){}
+ }
+
+ saveSlots(slots);
+}
+
+function renderSlots(){
+ const slots=getSlots();
+ const container=document.getElementById("slots");
+ container.innerHTML="";
+
+ slots.forEach((character,index)=>{
+  const box=document.createElement("div");
+  box.className="slot";
+
+  const title=document.createElement("h2");
+  title.textContent="Slot "+(index+1);
+  box.appendChild(title);
+
+  if(character&&character.hero){
+   const info=document.createElement("p");
+   info.textContent=
+    character.hero.characterClass+
+    " — Poziom "+character.hero.level;
+   box.appendChild(info);
+
+   const play=document.createElement("button");
+   play.textContent="▶ Wejdź do gry";
+   play.onclick=()=>enterGame(index);
+   box.appendChild(play);
+
+   const remove=document.createElement("button");
+   remove.className="danger";
+   remove.textContent="🗑 Usuń";
+   remove.onclick=()=>deleteCharacter(index);
+   box.appendChild(remove);
+  }else{
+   const info=document.createElement("p");
+   info.className="small";
+   info.textContent="Pusty slot";
+   box.appendChild(info);
+
+   const create=document.createElement("button");
+   create.textContent="+ Stwórz postać";
+   create.onclick=()=>enterGame(index);
+   box.appendChild(create);
+  }
+
+  container.appendChild(box);
+ });
+}
+
+function enterGame(index){
+ const slots=getSlots();
+
+ sessionStorage.setItem("idleActiveSlot",String(index));
+
+ if(slots[index] && slots[index].hero){
+  window.location.href="pulpit.html";
+ }else{
+  window.location.href="index.html";
+ }
+}
+
+function deleteCharacter(index){
+ const slots=getSlots();
+ const character=slots[index];
+ if(!character)return;
+
+ const label=character.hero.characterClass+
+  " (poziom "+character.hero.level+")";
+
+ if(!confirm("Czy na pewno usunąć "+label+"?"))return;
+
+ const confirmation=prompt(
+  "Aby trwale usunąć postać, wpisz USUŃ:"
+ );
+
+ if(confirmation!=="USUŃ")return;
+
+ slots[index]=null;
+ saveSlots(slots);
+ renderSlots();
+}
+
+function logout(){
+ sessionStorage.removeItem("idleLoggedUser");
+ sessionStorage.removeItem("idleActiveSlot");
+ window.location.href="login.html";
+}
+
+migrateOldCharacter();
+renderSlots();
+</script>
+</body>
+</html>

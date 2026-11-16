@@ -1,0 +1,420 @@
+
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Moja Gra Idle — Pulpit</title>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+ margin:0;
+ background:#111315;
+ color:#e6dfd0;
+ font-family:Arial,sans-serif;
+}
+
+button{
+ cursor:pointer;
+ border:0;
+ border-radius:5px;
+ background:#80683b;
+ color:white;
+ padding:10px 14px;
+}
+
+button:hover{background:#a3854d}
+
+/* MENU BOCZNE */
+
+.sidebar{
+ position:fixed;
+ top:0;
+ left:0;
+ bottom:0;
+ width:190px;
+ background:#191d20;
+ border-right:2px solid #80683b;
+ padding:15px 10px;
+ transition:transform .25s;
+ z-index:10;
+}
+
+.sidebar.closed{
+ transform:translateX(-190px);
+}
+
+.sidebar h2{
+ color:#d8b66c;
+ font-size:18px;
+ text-align:center;
+ margin:12px 0 25px;
+}
+
+.menu-link{
+ display:block;
+ width:100%;
+ text-align:left;
+ margin-bottom:8px;
+ padding:13px;
+ background:#292e31;
+}
+
+.menu-link.active{
+ background:#80683b;
+}
+
+
+.menu-toggle{
+ position:absolute;
+ top:12px;
+ right:10px;
+ z-index:20;
+ width:38px;
+ height:38px;
+ padding:0;
+ font-size:22px;
+}
+
+.sidebar.closed{
+ transform:translateX(-190px);
+}
+
+.sidebar.closed .menu-toggle{
+ right:-48px;
+ background:#80683b;
+}
+
+
+/* GŁÓWNA CZĘŚĆ */
+
+.main{
+ margin-left:190px;
+ padding:65px 18px 20px;
+ transition:margin-left .25s;
+}
+
+body.menu-closed .main{
+ margin-left:0;
+}
+
+.topbar{
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ gap:15px;
+ background:#202426;
+ border:1px solid #80683b;
+ padding:15px;
+ margin-bottom:18px;
+ border-radius:7px;
+}
+
+.character-name{
+ color:#d8b66c;
+ font-weight:bold;
+}
+
+.page-title{
+ font-size:22px;
+ color:#d8b66c;
+}
+
+/* TRZY GŁÓWNE PANELE */
+
+.profile-grid{
+ display:grid;
+ grid-template-columns:1fr 1.2fr 1.5fr;
+ gap:18px;
+}
+
+.panel{
+ background:#202426;
+ border:1px solid #454943;
+ border-radius:8px;
+ padding:18px;
+ min-width:0;
+}
+
+.panel h2{
+ color:#d8b66c;
+ font-size:18px;
+ margin-top:0;
+}
+
+.character-preview{
+ height:320px;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ border:1px dashed #666;
+ background:#171a1c;
+ color:#888;
+ text-align:center;
+}
+
+/* SLOTY EKWIPUNKU */
+
+.equipment{
+ display:grid;
+ grid-template-columns:repeat(3,1fr);
+ gap:10px;
+ max-width:340px;
+ margin:20px auto;
+}
+
+.equipment-slot{
+ aspect-ratio:1;
+ background:#151819;
+ border:1px solid #80683b;
+ border-radius:6px;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ text-align:center;
+ padding:5px;
+ font-size:12px;
+ color:#aaa;
+}
+
+.equipment-slot:hover{
+ border-color:#d8b66c;
+}
+
+/* STATYSTYKI */
+
+.stat-row{
+ display:flex;
+ justify-content:space-between;
+ gap:10px;
+ padding:9px 0;
+ border-bottom:1px solid #393e3e;
+}
+
+.stat-value{
+ color:#d8b66c;
+ font-weight:bold;
+}
+
+/* DOLNY PANEL */
+
+.bottom-panel{
+ margin-top:18px;
+ min-height:310px;
+}
+
+.placeholder{
+ color:#888;
+ font-size:14px;
+}
+
+/* TELEFONY I MAŁE EKRANY */
+
+@media(max-width:1100px){
+ .profile-grid{
+  grid-template-columns:1fr 1fr;
+ }
+ .stats-panel{
+  grid-column:1/-1;
+ }
+}
+
+@media(max-width:700px){
+ .profile-grid{
+  grid-template-columns:1fr;
+ }
+ .stats-panel{
+  grid-column:auto;
+ }
+ .sidebar{
+  width:190px;
+ }
+ .main{
+  margin-left:0;
+ }
+ .menu-toggle{
+  left:202px;
+ }
+ .topbar{
+  flex-wrap:wrap;
+ }
+}
+</style>
+<link rel="stylesheet" href="interfejs.css">
+<script src="interfejs.js" defer></script>
+</head>
+
+<body data-devils-page="pulpit">
+
+
+
+
+
+<main class="main">
+
+ <header class="topbar">
+  <div class="character-name" id="characterName">
+   Nazwa postaci
+  </div>
+
+  <div class="page-title">Pulpit profilu</div>
+
+  <div id="characterLevel">Poziom 1</div>
+ </header>
+
+ <div class="profile-grid">
+
+  <!-- WYGLĄD POSTACI -->
+
+  <section class="panel">
+   <h2>Postać</h2>
+
+   <div class="character-preview">
+    Podgląd wyglądu postaci
+   </div>
+  </section>
+
+  <!-- ZAŁOŻONY EKWIPUNEK -->
+
+  <section class="panel">
+   <h2>Założony ekwipunek</h2>
+
+   <div class="equipment">
+    <div class="equipment-slot">Broń</div>
+    <div class="equipment-slot">Hełm</div>
+    <div class="equipment-slot">Zbroja</div>
+    <div class="equipment-slot">Rękawice</div>
+    <div class="equipment-slot">Spodnie</div>
+    <div class="equipment-slot">Buty</div>
+    <div class="equipment-slot">Naszyjnik</div>
+    <div class="equipment-slot">Pierścień</div>
+    <div class="equipment-slot">Rdzeń</div>
+   </div>
+  </section>
+
+  <!-- STATYSTYKI -->
+
+  <section class="panel stats-panel">
+   <h2>Statystyki</h2>
+
+   <div id="stats"></div>
+
+   <h2 style="margin-top:25px">Wartości bojowe</h2>
+
+   <div class="stat-row">
+    <span>Atak</span><span class="stat-value">—</span>
+   </div>
+   <div class="stat-row">
+    <span>Atak magiczny</span><span class="stat-value">—</span>
+   </div>
+   <div class="stat-row">
+    <span>Obrona</span><span class="stat-value">—</span>
+   </div>
+   <div class="stat-row">
+    <span>Szybkość poruszania się</span><span class="stat-value">—</span>
+   </div>
+  </section>
+
+ </div>
+
+ <!-- DOLNY PANEL -->
+
+ <section class="panel bottom-panel">
+  <h2>Przestrzeń na przyszłe funkcje</h2>
+  <p class="placeholder">
+   Tutaj później dodamy kolejne elementy pulpitu.
+  </p>
+ </section>
+
+</main>
+
+<script>
+const user=sessionStorage.getItem("idleLoggedUser");
+const slotValue=sessionStorage.getItem("idleActiveSlot");
+const activeSlot=Number(slotValue);
+
+
+
+function toggleMenu(){
+ const sidebar=document.getElementById("sidebar");
+
+ const isClosed=sidebar.classList.toggle("closed");
+
+ document.body.classList.toggle("menu-closed",isClosed);
+
+ localStorage.setItem(
+  "idleMenuClosed",
+  isClosed?"1":"0"
+ );
+}
+
+
+function loadProfile(){
+ try{
+  const slots=JSON.parse(
+   localStorage.getItem("idleSlots_"+user)
+  );
+
+  const data=slots?.[activeSlot];
+
+  if(!data?.hero){
+ console.log("Brak danych postaci do wyświetlenia.");
+ return;
+}
+
+  const hero=data.hero;
+
+  document.getElementById("characterName").textContent=
+   hero.name||hero.characterClass;
+
+  document.getElementById("characterLevel").textContent=
+   "Poziom "+hero.level+" | "+hero.characterClass;
+
+  const stats=document.getElementById("stats");
+  stats.innerHTML="";
+
+  const names=[
+   "Siła",
+   "Inteligencja",
+   "Szybkość",
+   "Wytrzymałość",
+   "Energia"
+  ];
+
+  names.forEach(name=>{
+   const row=document.createElement("div");
+   row.className="stat-row";
+
+   const label=document.createElement("span");
+   label.textContent=name;
+
+   const value=document.createElement("span");
+   value.className="stat-value";
+   value.textContent=hero.stats?.[name]??0;
+
+   row.append(label,value);
+   stats.appendChild(row);
+  });
+
+ }catch(error){
+  console.error("Błąd wczytywania profilu:",error);
+ }
+}
+
+function backToCharacters(){
+ sessionStorage.removeItem("idleActiveSlot");
+ window.location.href="postacie.html";
+}
+
+if(localStorage.getItem("idleMenuClosed")==="1"){
+ document.getElementById("sidebar").classList.add("closed");
+ document.body.classList.add("menu-closed");
+}
+
+loadProfile();
+</script>
+
+</body>
+</html>

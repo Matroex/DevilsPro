@@ -1,0 +1,1624 @@
+
+
+<!DOCTYPE html>
+
+<html lang="pl">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Moja Gra Idle — Mapa</title>
+
+<style>
+
+*{box-sizing:border-box}
+
+body{
+
+ margin:0;
+
+ padding-left:190px;
+
+ background:#111315;
+
+ color:#e6dfd0;
+
+ font-family:Arial,sans-serif;
+
+ transition:padding-left .25s;
+
+}
+
+button{
+
+ cursor:pointer;
+
+ border:0;
+
+ border-radius:5px;
+
+ background:#80683b;
+
+ color:white;
+
+ padding:10px 14px;
+
+}
+
+button:hover:not(:disabled){background:#a3854d}
+
+button:disabled{opacity:.4;cursor:not-allowed}
+
+/* MENU */
+
+.sidebar{
+
+ position:fixed;
+
+ top:0;
+
+ left:0;
+
+ bottom:0;
+
+ width:190px;
+
+ background:#191d20;
+
+ border-right:2px solid #80683b;
+
+ padding:15px 10px;
+
+ z-index:100;
+
+ transition:transform .25s;
+
+}
+
+.sidebar.closed{transform:translateX(-190px)}
+
+.sidebar h2{
+
+ color:#d8b66c;
+
+ font-size:18px;
+
+ text-align:center;
+
+ margin:12px 0 25px;
+
+}
+
+.menu-toggle{
+
+ position:absolute;
+
+ top:12px;
+
+ right:10px;
+
+ width:38px;
+
+ height:38px;
+
+ padding:0;
+
+ font-size:22px;
+
+}
+
+.sidebar.closed .menu-toggle{right:-48px}
+
+.menu-link{
+
+ display:block;
+
+ width:100%;
+
+ text-align:left;
+
+ margin-bottom:8px;
+
+ padding:13px;
+
+ background:#292e31;
+
+}
+
+.menu-link.active{background:#80683b}
+
+body.menu-closed{padding-left:0}
+
+/* MAPA */
+
+.main{padding:20px}
+
+.map-layout{
+
+ display:grid;
+
+ grid-template-columns:250px minmax(0,1fr);
+
+ gap:12px;
+
+}
+
+.locations{
+
+ background:#191d20;
+
+ border:1px solid #80683b;
+
+ padding:8px;
+
+ max-height:calc(100vh - 40px);
+
+ overflow-y:auto;
+
+}
+
+.location-button{
+
+ display:block;
+
+ width:100%;
+
+ text-align:left;
+
+ margin-bottom:6px;
+
+ background:#292e31;
+
+ border:1px solid #454943;
+
+}
+
+.location-button.active{
+
+ background:#80683b;
+
+ border-color:#d8b66c;
+
+}
+
+.map-content{min-width:0}
+
+.location-image{
+
+ height:230px;
+
+ border:1px solid #80683b;
+
+ border-radius:6px;
+
+ background:#202426;
+
+ display:flex;
+
+ flex-direction:column;
+
+ align-items:center;
+
+ justify-content:center;
+
+ margin-bottom:12px;
+
+ color:#888;
+
+ gap:12px;
+
+}
+
+.location-image h2{
+
+ color:#d8b66c;
+
+ margin:0;
+
+}
+
+.area-row{
+
+ display:flex;
+
+ align-items:center;
+
+ justify-content:space-between;
+
+ gap:15px;
+
+ padding:12px;
+
+ margin-bottom:5px;
+
+ background:#202426;
+
+ border:1px solid #454943;
+
+ border-radius:5px;
+
+}
+
+.area-name{
+
+ flex:1;
+
+ color:#e6dfd0;
+
+ font-weight:bold;
+
+}
+
+.area-actions{
+
+ display:flex;
+
+ gap:8px;
+
+}
+
+/* LISTA POTWORÓW */
+
+.monsters-panel{
+
+ margin-top:15px;
+
+ background:#202426;
+
+ border:1px solid #80683b;
+
+ border-radius:6px;
+
+ padding:15px;
+
+}
+
+.monsters-panel h2{
+
+ color:#d8b66c;
+
+ margin-top:0;
+
+}
+
+.monster-row{
+
+ display:grid;
+
+ grid-template-columns:minmax(0,2fr) 90px 90px 100px;
+
+ align-items:center;
+
+ gap:12px;
+
+ padding:12px;
+
+ border-bottom:1px solid #454943;
+
+}
+
+.monster-row.selected{
+
+ background:#353c31;
+
+}
+
+.monster-name{
+
+ display:flex;
+
+ align-items:center;
+
+ gap:10px;
+
+}
+
+.monster-name input{
+
+ width:18px;
+
+ height:18px;
+
+ accent-color:#b99a58;
+
+ cursor:pointer;
+
+}
+
+.fight-controls{
+
+ display:flex;
+
+ align-items:center;
+
+ justify-content:space-between;
+
+ gap:15px;
+
+ margin-top:20px;
+
+}
+
+.fight-button{
+
+ font-size:18px;
+
+ font-weight:bold;
+
+ min-width:180px;
+
+}
+
+/* OKNO DROPU */
+
+.modal{
+
+ position:fixed;
+
+ inset:0;
+
+ z-index:500;
+
+ background:rgba(0,0,0,.75);
+
+ display:flex;
+
+ align-items:center;
+
+ justify-content:center;
+
+ padding:20px;
+
+}
+
+.modal.hidden{display:none}
+
+.modal-box{
+
+ width:min(450px,100%);
+
+ background:#202426;
+
+ border:2px solid #80683b;
+
+ border-radius:8px;
+
+ padding:22px;
+
+}
+
+.modal-box h2{
+
+ margin-top:0;
+
+ color:#d8b66c;
+
+}
+
+.drop-item{
+
+ padding:10px;
+
+ border-bottom:1px solid #454943;
+
+}
+
+.modal-close{margin-top:20px}
+
+.hidden{display:none}
+
+@media(max-width:900px){
+
+ .map-layout{grid-template-columns:1fr}
+
+ .locations{max-height:180px}
+
+}
+
+@media(max-width:700px){
+
+ body{padding-left:0}
+
+ .main{padding:60px 10px 15px}
+
+ .area-row{flex-wrap:wrap}
+
+ .area-actions{width:100%}
+
+ .monster-row{
+
+  grid-template-columns:1fr 65px 65px 75px;
+
+  gap:5px;
+
+  padding:8px 3px;
+
+  font-size:12px;
+
+ }
+
+ .monster-row button{padding:8px 4px}
+
+}
+
+/* OKNO WYBORU POTWORÓW */
+
+.monster-modal{
+
+ position:fixed;
+
+ inset:0;
+
+ z-index:400;
+
+ display:flex;
+
+ align-items:center;
+
+ justify-content:center;
+
+ padding:20px;
+
+ background:rgba(0,0,0,.82);
+
+}
+
+.monster-modal.hidden{
+
+ display:none;
+
+}
+
+.monster-window{
+
+ width:min(720px,100%);
+
+ max-height:90vh;
+
+ display:flex;
+
+ flex-direction:column;
+
+ background:#1b1916;
+
+ border:2px solid #8d7135;
+
+ border-radius:5px;
+
+ box-shadow:0 0 35px #000;
+
+ overflow:hidden;
+
+}
+
+.monster-window-header{
+
+ display:flex;
+
+ align-items:center;
+
+ justify-content:space-between;
+
+ gap:15px;
+
+ padding:20px 24px;
+
+ border-bottom:1px solid #8d7135;
+
+ background:linear-gradient(#302b23,#211e19);
+
+}
+
+.monster-window-header h2{
+
+ margin:0;
+
+ color:#dfc88e;
+
+ font-family:Georgia,serif;
+
+ font-size:21px;
+
+ letter-spacing:1px;
+
+}
+
+.monster-close{
+
+ width:38px;
+
+ height:38px;
+
+ padding:0;
+
+ background:#211e19;
+
+ border:1px solid #8d7135;
+
+ color:#dfc88e;
+
+ font-size:22px;
+
+}
+
+.monster-window-body{
+
+ padding:22px;
+
+ overflow-y:auto;
+
+ flex:1;
+
+ min-height:0;
+
+}
+
+.monster-description{
+
+ color:#aaa092;
+
+ font-size:13px;
+
+ margin:0 0 16px;
+
+}
+
+.monster-count{
+
+ font-weight:bold;
+
+ margin-bottom:16px;
+
+}
+
+.monster-option{
+
+ display:flex;
+
+ align-items:center;
+
+ justify-content:space-between;
+
+ gap:12px;
+
+ padding:14px 12px;
+
+ margin-bottom:8px;
+
+ background:#211e1b;
+
+ border:1px solid #3c3428;
+
+ border-radius:4px;
+
+ cursor:pointer;
+
+ transition:background .15s,border-color .15s;
+
+}
+
+.monster-option:hover{
+
+ border-color:#80683b;
+
+ background:#2a251e;
+
+}
+
+.monster-option.selected{
+
+ background:#302a1d;
+
+ border-color:#d2ab4c;
+
+}
+
+.monster-option.disabled{
+
+ opacity:.55;
+
+ cursor:not-allowed;
+
+}
+
+.monster-option-info{
+
+ flex:1;
+
+ min-width:0;
+
+}
+
+.monster-option-name{
+
+ color:#e6dfd0;
+
+ font-size:14px;
+
+ font-weight:bold;
+
+ margin-bottom:7px;
+
+}
+
+.monster-option.selected .monster-option-name{
+
+ color:#f5e2ac;
+
+}
+
+.monster-option-stats{
+
+ display:flex;
+
+ flex-wrap:wrap;
+
+ gap:10px;
+
+ color:#968c7b;
+
+ font-size:12px;
+
+}
+
+.monster-option-level{
+
+ color:#d2ab4c;
+
+ font-weight:bold;
+
+}
+
+.monster-info-button{
+
+ display:flex;
+
+ align-items:center;
+
+ justify-content:center;
+
+ flex-shrink:0;
+
+ width:28px;
+
+ height:28px;
+
+ padding:0;
+
+ border:1px solid #73674e;
+
+ border-radius:50%;
+
+ background:transparent;
+
+ color:#c4b89c;
+
+ font-family:Georgia,serif;
+
+ font-size:16px;
+
+ font-style:italic;
+
+}
+
+.monster-info-button:hover{
+
+ background:#80683b;
+
+}
+
+.monster-window-footer{
+
+ display:flex;
+
+ align-items:center;
+
+ justify-content:flex-end;
+
+ gap:12px;
+
+ padding:15px 22px;
+
+ border-top:1px solid #8d7135;
+
+ background:#211e19;
+
+}
+
+.monster-cancel{
+
+ background:#29251e;
+
+ border:1px solid #8d7135;
+
+ color:#dfc88e;
+
+}
+
+.monster-fight{
+
+ border:1px solid #d2ab4c;
+
+ font-weight:bold;
+
+ color:#fff1c9;
+
+}
+
+.monster-fight:disabled{
+
+ opacity:.35;
+
+}
+
+/* DROP WYŚWIETLANY NAD OKNEM POTWORÓW */
+
+#dropModal{
+
+ z-index:600;
+
+}
+
+@media(max-width:700px){
+
+ .monster-modal{
+
+  padding:8px;
+
+ }
+
+ .monster-window{
+
+  max-height:95vh;
+
+ }
+
+ .monster-window-header{
+
+  padding:14px;
+
+ }
+
+ .monster-window-header h2{
+
+  font-size:16px;
+
+ }
+
+ .monster-window-body{
+
+  padding:12px;
+
+ }
+
+ .monster-option{
+
+  padding:12px 9px;
+
+ }
+
+ .monster-window-footer{
+
+  padding:12px;
+
+ }
+
+}
+
+/* CAŁY PASEK POTWORA JEST KLIKALNY */
+
+.monster-option{
+
+ width:100%;
+
+ cursor:pointer;
+
+}
+
+.monster-option-info{
+
+ flex:1;
+
+ min-width:0;
+
+ pointer-events:none;
+
+}
+
+/* ZAZNACZONY POTWÓR */
+
+.monster-option.selected{
+
+ background:#302a1d;
+
+ border:1px solid #d2ab4c;
+
+}
+
+/* UKRYCIE STARYCH CHECKBOXÓW */
+
+.monster-option input[type="checkbox"]{
+
+ display:none;
+
+}
+
+/* PRZYCISK DROPU DZIAŁA OSOBNO */
+
+.monster-info-button{
+
+ pointer-events:auto;
+
+ cursor:pointer;
+
+}
+
+/* POPRAWKA IKONKI INFORMACJI O DROP */
+.monster-info-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  padding: 0;
+  border: 1px solid #73674e;
+  border-radius: 50%;
+  font-family: Arial, sans-serif;
+  font-style: normal;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+}
+
+</style>
+
+<link rel="stylesheet" href="interfejs.css">
+<script src="interfejs.js" defer></script>
+</head>
+
+<body data-devils-page="mapa">
+
+
+
+<main class="main">
+
+ <div class="map-layout">
+
+  <aside class="locations" id="locations"></aside>
+
+  <div class="map-content">
+
+   <section class="location-image">
+
+    <h2 id="locationTitle">Mapa</h2>
+
+    <span>Tu pojawi się obrazek lokacji</span>
+
+   </section>
+
+   <div id="areas"></div>
+
+  </div>
+
+ </div>
+
+</main>
+
+<!-- OKNO WYBORU POTWORÓW -->
+
+<div id="monstersPanel" class="monster-modal hidden">
+
+ <div class="monster-window"
+
+      role="dialog"
+
+      aria-modal="true"
+
+      aria-labelledby="monstersTitle">
+
+  <div class="monster-window-header">
+
+   <h2 id="monstersTitle">
+
+    WYBIERZ POTWORY
+
+   </h2>
+
+   <button class="monster-close"
+
+           onclick="closeMonsters()">
+
+    ×
+
+   </button>
+
+  </div>
+
+  <div class="monster-window-body">
+
+   <p class="monster-description">
+
+    Wybierz od 1 do 3 przeciwników do walki.
+
+    Kliknij potwora, aby go zaznaczyć.
+
+   </p>
+
+   <div id="selectedCount" class="monster-count">
+
+    Wybrano 0/3
+
+   </div>
+
+   <div id="monstersList"></div>
+
+  </div>
+
+  <div class="monster-window-footer">
+
+   <button class="monster-cancel"
+
+           onclick="closeMonsters()">
+
+    Anuluj
+
+   </button>
+
+   <button id="fightButton"
+
+           class="monster-fight"
+
+           onclick="startFight()"
+
+           disabled>
+
+    ⚔️ WALCZ
+
+   </button>
+
+  </div>
+
+ </div>
+
+</div>
+
+<div id="dropModal" class="modal hidden">
+
+ <div class="modal-box">
+
+  <h2 id="dropTitle">Możliwy drop</h2>
+
+  <div id="dropList"></div>
+
+  <button class="modal-close" onclick="closeDrop()">
+
+   Zamknij
+
+  </button>
+
+ </div>
+
+</div>
+
+<script>
+
+/* PRZYKŁADOWE LOKACJE */
+
+const locationsData=[
+
+ {
+
+  name:"Mroczny Las",
+
+  areas:[
+
+   {
+
+    name:"Leśna Ścieżka",
+
+    monsters:[
+
+     {id:"wilk",name:"Wilk",level:1,exp:10,
+
+      drops:["Wilcza skóra","Złoto"]},
+
+     {id:"pies",name:"Dziki pies",level:2,exp:15,
+
+      drops:["Kły","Złoto"]},
+
+     {id:"bandyta",name:"Bandyta",level:3,exp:20,
+
+      drops:["Stary miecz","Złoto"]}
+
+    ]
+
+   },
+
+   {
+
+    name:"Gęstwina",
+
+    monsters:[
+
+     {id:"pajak",name:"Leśny pająk",level:4,exp:25,
+
+      drops:["Pajęcza nić","Złoto"]},
+
+     {id:"niedzwiedz",name:"Niedźwiedź",level:5,exp:35,
+
+      drops:["Niedźwiedzia skóra","Złoto"]}
+
+    ]
+
+   },
+
+   {
+
+    name:"Stare Drzewa",
+
+    monsters:[
+
+     {id:"wilk_alfa",name:"Wilk Alfa",level:7,exp:50,
+
+      drops:["Wilcze kły","Złoto"]}
+
+    ]
+
+   },
+
+   {
+
+    name:"Opuszczony Obóz",
+
+    monsters:[
+
+     {id:"rozbojnik",name:"Rozbójnik",level:8,exp:60,
+
+      drops:["Zardzewiała broń","Złoto"]}
+
+    ]
+
+   },
+
+   {
+
+    name:"Leśne Ruiny",
+
+    monsters:[
+
+     {id:"szkielet",name:"Szkielet",level:10,exp:80,
+
+      drops:["Stare kości","Złoto"]}
+
+    ]
+
+   },
+
+   {
+
+    name:"Zapomniana Polana",
+
+    monsters:[
+
+     {id:"duch",name:"Leśny duch",level:12,exp:100,
+
+      drops:["Eteryczny pył","Złoto"]}
+
+    ]
+
+   },
+
+   {
+
+    name:"Legowisko Bestii",
+
+    monsters:[],
+
+    challengeOnly:true
+
+   }
+
+  ]
+
+ },
+
+ {
+
+  name:"Stara Kopalnia",
+
+  areas:[
+
+   {
+
+    name:"Wejście do kopalni",
+
+    monsters:[
+
+     {id:"szczur",name:"Olbrzymi szczur",level:5,exp:30,
+
+      drops:["Szczurzy ogon","Złoto"]},
+
+     {id:"gornik",name:"Przeklęty górnik",level:6,exp:40,
+
+      drops:["Żelazna ruda","Złoto"]}
+
+    ]
+
+   },
+
+   {
+
+    name:"Głębokie Tunele",
+
+    monsters:[
+
+     {id:"golem",name:"Kamienny golem",level:10,exp:85,
+
+      drops:["Kamienny odłamek","Złoto"]}
+
+    ]
+
+   }
+
+  ]
+
+ },
+
+ {
+
+  name:"Zapomniane Ruiny",
+
+  areas:[
+
+   {
+
+    name:"Dziedziniec",
+
+    monsters:[
+
+     {id:"straznik",name:"Nieumarły strażnik",level:12,exp:110,
+
+      drops:["Stara zbroja","Złoto"]}
+
+    ]
+
+   }
+
+  ]
+
+ }
+
+];
+
+let currentLocation=0;
+
+let currentArea=null;
+
+let selectedMonsters=[];
+
+/* MENU */
+
+function toggleMenu(){
+
+ const sidebar=document.getElementById("sidebar");
+
+ const closed=sidebar.classList.toggle("closed");
+
+ document.body.classList.toggle("menu-closed",closed);
+
+ localStorage.setItem("idleMenuClosed",closed?"1":"0");
+
+}
+
+if(localStorage.getItem("idleMenuClosed")==="1"){
+
+ document.getElementById("sidebar").classList.add("closed");
+
+ document.body.classList.add("menu-closed");
+
+}
+
+function goTo(page){
+
+ window.location.href=page;
+
+}
+
+function backToCharacters(){
+
+ sessionStorage.removeItem("idleActiveSlot");
+
+ window.location.href="postacie.html";
+
+}
+
+/* WYŚWIETLANIE LOKACJI */
+
+function renderLocations(){
+
+ const container=document.getElementById("locations");
+
+ container.innerHTML="";
+
+ locationsData.forEach((location,index)=>{
+
+  const button=document.createElement("button");
+
+  button.className="location-button"+
+
+   (index===currentLocation?" active":"");
+
+  button.textContent=location.name;
+
+  button.onclick=()=>selectLocation(index);
+
+  container.appendChild(button);
+
+ });
+
+}
+
+function selectLocation(index){
+
+ currentLocation=index;
+
+ currentArea=null;
+
+ selectedMonsters=[];
+
+ document.getElementById("locationTitle").textContent=
+
+  locationsData[index].name;
+
+ document.getElementById("monstersPanel").classList.add("hidden");
+
+ renderLocations();
+
+ renderAreas();
+
+}
+
+function renderAreas(){
+
+ const container=document.getElementById("areas");
+
+ container.innerHTML="";
+
+ const areas=locationsData[currentLocation].areas;
+
+ areas.forEach((area,index)=>{
+
+  const row=document.createElement("div");
+
+  row.className="area-row";
+
+  const name=document.createElement("span");
+
+  name.className="area-name";
+
+  name.textContent=area.name;
+
+  const actions=document.createElement("div");
+
+  actions.className="area-actions";
+
+  if(!area.challengeOnly){
+
+   const monstersButton=document.createElement("button");
+
+   monstersButton.textContent="Potwory";
+
+   monstersButton.onclick=()=>showMonsters(index);
+
+   actions.appendChild(monstersButton);
+
+  }
+
+  const challengeButton=document.createElement("button");
+
+  challengeButton.textContent="Wyzwania";
+
+  challengeButton.onclick=()=>{
+
+   alert("Wyzwania dodamy w kolejnym etapie.");
+
+  };
+
+  actions.appendChild(challengeButton);
+
+  row.append(name,actions);
+
+  container.appendChild(row);
+
+ });
+
+}
+
+/* WYBÓR POTWORÓW */
+
+/* OTWIERANIE OKNA POTWORÓW */
+
+function showMonsters(index){
+
+ currentArea=index;
+
+ selectedMonsters=[];
+
+ const area=
+
+  locationsData[currentLocation].areas[index];
+
+ document.getElementById("monstersTitle").textContent=
+
+  "WYBIERZ POTWORY — "+area.name.toUpperCase();
+
+ document.getElementById("monstersPanel")
+
+  .classList.remove("hidden");
+
+ renderMonsters();
+
+}
+
+/* ZAMYKANIE OKNA */
+
+function closeMonsters(){
+
+ document.getElementById("monstersPanel")
+
+  .classList.add("hidden");
+
+ selectedMonsters=[];
+
+}
+
+/* ZAZNACZANIE POTWORA */
+
+function toggleMonster(id){
+
+ if(selectedMonsters.includes(id)){
+
+  selectedMonsters=selectedMonsters.filter(
+
+   monsterId=>monsterId!==id
+
+  );
+
+ }else{
+
+  if(selectedMonsters.length>=3){
+
+   return;
+
+  }
+
+  selectedMonsters.push(id);
+
+ }
+
+ renderMonsters();
+
+}
+
+/* WYŚWIETLANIE LISTY POTWORÓW */
+
+function renderMonsters(){
+
+ const container=document.getElementById("monstersList");
+
+ container.innerHTML="";
+
+ const monsters=
+
+  locationsData[currentLocation]
+
+   .areas[currentArea].monsters;
+
+ monsters.forEach(monster=>{
+
+  const selected=selectedMonsters.includes(monster.id);
+
+  const limitReached=
+
+   selectedMonsters.length>=3 && !selected;
+
+  // CAŁY PASEK POTWORA
+
+  const row=document.createElement("div");
+
+  row.className="monster-option";
+
+  if(selected){
+
+   row.classList.add("selected");
+
+  }
+
+  if(limitReached){
+
+   row.classList.add("disabled");
+
+  }
+
+  // Kliknięcie w dowolnym miejscu paska
+
+  row.addEventListener("click",function(){
+
+   toggleMonster(monster.id);
+
+  });
+
+  // INFORMACJE O POTWORZE
+
+  const info=document.createElement("div");
+
+  info.className="monster-option-info";
+
+  const name=document.createElement("div");
+
+  name.className="monster-option-name";
+
+  name.textContent=monster.name;
+
+  const stats=document.createElement("div");
+
+  stats.className="monster-option-stats";
+
+  const level=document.createElement("span");
+
+  level.className="monster-option-level";
+
+  level.textContent="Poz. "+monster.level;
+
+  const hp=document.createElement("span");
+
+  hp.textContent="HP "+(monster.hp ?? "—");
+
+  const dmg=document.createElement("span");
+
+  dmg.textContent="DMG "+(monster.dmg ?? "—");
+
+  const exp=document.createElement("span");
+
+  exp.textContent="EXP "+monster.exp;
+
+  stats.append(level,hp,dmg,exp);
+
+  info.append(name,stats);
+
+  // PRZYCISK DROPU
+
+  const dropButton=document.createElement("button");
+
+  dropButton.className="monster-info-button";
+
+  dropButton.textContent="i";
+
+  dropButton.title="Sprawdź możliwy drop";
+
+  dropButton.addEventListener("click",function(event){
+
+   // Nie zaznaczaj potwora przy kliknięciu Drop
+
+   event.stopPropagation();
+
+   showDrop(monster);
+
+  });
+
+  row.append(info,dropButton);
+
+  container.appendChild(row);
+
+ });
+
+ // LICZNIK ZAZNACZONYCH POTWORÓW
+
+ document.getElementById("selectedCount").textContent=
+
+  "Wybrano "+selectedMonsters.length+"/3";
+
+ document.getElementById("fightButton").disabled=
+
+  selectedMonsters.length===0;
+
+}
+
+/* PODGLĄD DROPU */
+
+function showDrop(monster){
+
+ document.getElementById("dropTitle").textContent=
+
+  "Możliwy drop — "+monster.name;
+
+ const list=document.getElementById("dropList");
+
+ list.innerHTML="";
+
+ monster.drops.forEach(item=>{
+
+  const div=document.createElement("div");
+
+  div.className="drop-item";
+
+  div.textContent="🎒 "+item;
+
+  list.appendChild(div);
+
+ });
+
+ document.getElementById("dropModal").classList.remove("hidden");
+
+}
+
+function closeDrop(){
+
+ document.getElementById("dropModal").classList.add("hidden");
+
+}
+
+/* ROZPOCZĘCIE WALKI */
+
+function startFight(){
+
+ if(selectedMonsters.length<1 ||
+
+    selectedMonsters.length>3){
+
+  return;
+
+ }
+
+ const area=
+
+  locationsData[currentLocation].areas[currentArea];
+
+ const chosen=area.monsters.filter(
+
+  monster=>selectedMonsters.includes(monster.id)
+
+ );
+
+ sessionStorage.setItem(
+
+  "idleSelectedMonsters",
+
+  JSON.stringify(chosen)
+
+ );
+
+ sessionStorage.setItem(
+
+  "idleSelectedLocation",
+
+  locationsData[currentLocation].name
+
+ );
+
+ sessionStorage.setItem(
+
+  "idleSelectedArea",
+
+  area.name
+
+ );
+
+ window.location.href="walka.html";
+
+}
+
+/* START MAPY */
+
+selectLocation(0);
+
+</script>
+
+</body>
+
+</html>

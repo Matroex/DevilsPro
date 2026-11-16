@@ -1,0 +1,233 @@
+:root{--dv-top:94px;--dv-side:236px;--dv-bg:#111315;--dv-panel:#1b1e20;--dv-panel2:#24282a;--dv-line:#735e39;--dv-gold:#e3bf75;--dv-text:#e8e0d0;--dv-muted:#a9a193}
+*{box-sizing:border-box}
+html{scrollbar-color:#d6d6d2 #303236;scrollbar-width:thin}
+body{margin:0;background:var(--dv-bg);color:var(--dv-text);font-family:Arial,sans-serif}
+body.devils-ui{padding-top:var(--dv-top)!important;padding-left:var(--dv-side)!important}
+body.devils-ui.menu-closed{padding-left:var(--dv-side)!important}
+body.devils-ui>.sidebar,body.devils-ui>nav.sidebar{display:none!important}
+body.devils-ui .main{padding-top:20px}
+#devils-shell{font-family:Arial,sans-serif}
+#devils-shell button{font-family:inherit;cursor:pointer}
+#devils-shell button:focus-visible,#devils-shell a:focus-visible{outline:2px solid #f8d58a;outline-offset:2px}
+#devils-shell .dv-topbar{position:fixed;top:0;left:0;right:0;height:var(--dv-top);z-index:1000;background:linear-gradient(180deg,#242729,#181a1c);border-bottom:2px solid var(--dv-line);display:flex;align-items:center;gap:12px;padding:8px 18px;box-shadow:0 3px 16px #0008}
+#devils-shell .dv-avatar{height:58px;width:58px;flex:none;border:2px solid #a68b55;border-radius:6px;background:linear-gradient(145deg,#37332b,#161718);color:#e3c486;display:grid;place-items:center;font-size:28px}
+#devils-shell .dv-profile{display:flex;flex-direction:column;justify-content:center;gap:5px;min-width:265px;max-width:360px}
+#devils-shell .dv-vitals{display:flex;flex-direction:column;gap:3px;align-items:stretch}
+#devils-shell .dv-vital{flex:1;min-width:0}
+#devils-shell .dv-vitalbar{height:12px;background:#0c0c0c;border:1px solid #b0a28b;border-radius:0;overflow:hidden}
+#devils-shell .dv-vitalbar>span{display:block;height:100%;width:0;transition:width .3s}
+#devils-shell .dv-hp>span{background:linear-gradient(90deg,#8d1717,#f44b4b)}
+#devils-shell .dv-mana>span{background:linear-gradient(90deg,#164c9d,#4fa9ff)}
+#devils-shell .dv-vital-label{font-size:10px;color:#d2c9b8;margin-top:1px;white-space:nowrap}
+#devils-shell .dv-identity{display:flex;align-items:baseline;gap:10px;min-width:0}
+#devils-shell .dv-name{font-weight:700;font-size:14px;color:#f3e2bd;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:225px}
+#devils-shell .dv-level{font-size:12px;font-weight:bold;color:#e2bd78;white-space:nowrap}
+#devils-shell .dv-resources{display:flex;align-items:center;gap:8px;font-size:11px;color:#c9c1b0;white-space:nowrap}
+#devils-shell .dv-xp{height:11px;width:110px;flex:none;border:1px solid #c6b991;background:#090909;border-radius:0;overflow:hidden}
+#devils-shell .dv-xp>span{display:block;background:linear-gradient(90deg,#b69a32,#f0df6d);height:100%;width:0;transition:width .3s}
+#devils-shell .dv-currencies{display:flex;gap:8px;align-items:center}
+#devils-shell .dv-currency{color:#e7d6a8}
+#devils-shell .dv-brand{position:absolute;left:50%;transform:translateX(-50%);font:700 24px Georgia,serif;color:#e5c27d;letter-spacing:3px;text-shadow:0 2px 12px #000}
+#devils-shell .dv-quick{display:flex;gap:8px;margin-left:auto;position:relative;z-index:1}
+#devils-shell .dv-quick button{width:36px;height:36px;border:1px solid #aa8a4e;border-radius:50%;background:#292725;color:#ead6a8;display:grid;place-items:center;font-size:16px;transition:.15s}
+#devils-shell .dv-quick button:hover{background:#67512f;transform:translateY(-2px)}
+#devils-shell .dv-sidebar{position:fixed;left:0;top:var(--dv-top);bottom:0;width:var(--dv-side);z-index:999;background:#1a1d1f;border-right:2px solid var(--dv-line);display:flex;flex-direction:column}
+#devils-shell .dv-sidebar-title{font:700 12px Arial,sans-serif;letter-spacing:2px;text-transform:uppercase;color:#e8c780;padding:15px 18px;border-bottom:1px solid #544a37}
+#devils-shell .dv-navscroll{overflow-y:auto;overscroll-behavior:contain;flex:1;padding:8px 8px 22px;scrollbar-width:auto;scrollbar-color:#deded9 #303338}
+#devils-shell .dv-navscroll::-webkit-scrollbar{width:12px}
+#devils-shell .dv-navscroll::-webkit-scrollbar-track{background:#303338}
+#devils-shell .dv-navscroll::-webkit-scrollbar-thumb{background:#d6d6d0;border:2px solid #303338;border-radius:8px}
+#devils-shell .dv-group{margin:6px 0 9px}
+#devils-shell .dv-grouphead{width:100%;border:1px solid #79643e;background:#2a2926;color:#f0d5a0;padding:11px 12px;text-align:left;display:flex;justify-content:space-between;align-items:center;font-weight:700;font-size:12px;border-radius:3px}
+#devils-shell .dv-grouphead:hover{background:#44382a}
+#devils-shell .dv-chevron{font-size:17px;transition:transform .2s}
+#devils-shell .dv-grouphead[aria-expanded=false] .dv-chevron{transform:rotate(-90deg)}
+#devils-shell .dv-groupitems{padding:5px 3px 3px 9px}
+#devils-shell .dv-groupitems[hidden]{display:none}
+#devils-shell .dv-link{display:flex;align-items:center;gap:10px;width:100%;border:0;border-bottom:1px solid #424441;border-radius:0;background:transparent;text-decoration:none;color:#d6d1c6;text-align:left;padding:11px 9px;font-size:12px;min-height:39px}
+#devils-shell .dv-link:hover{background:#302b24;color:#ffe4a4}
+#devils-shell .dv-link.active{color:#ffe0a0;background:#4b3a24;border-left:3px solid #e7bb63;padding-left:6px}
+#devils-shell .dv-link[aria-disabled=true]{opacity:.53}
+#devils-shell .dv-link .dv-ico{width:18px;text-align:center;font-size:14px}
+#devils-shell .dv-link .dv-soon{margin-left:auto;color:#a89b83;font-size:9px}
+#devils-shell .dv-toast{position:fixed;right:20px;bottom:20px;z-index:1200;background:#2d2a22;border:1px solid #b18e4e;color:#f3dfb2;padding:13px 17px;border-radius:6px;box-shadow:0 8px 25px #0009;max-width:320px}
+#devils-shell .dv-toast[hidden]{display:none}
+#devils-shell .dv-mobile-toggle{display:none;background:#3b3225;border:1px solid #b28e4d;color:#f5dfb6;border-radius:4px;padding:7px 10px;font-size:18px}
+@media(max-width:1000px){
+#devils-shell .dv-brand{display:none}
+#devils-shell .dv-quick{gap:5px}
+#devils-shell .dv-quick button{width:31px;height:31px;font-size:14px}
+}
+@media(max-width:700px){
+:root{--dv-top:69px;--dv-side:236px}
+body.devils-ui,body.devils-ui.menu-closed{padding-left:0!important}
+#devils-shell .dv-topbar{padding:7px;gap:6px}
+#devils-shell .dv-mobile-toggle{display:block}
+#devils-shell .dv-avatar{width:40px;height:45px;font-size:22px}
+#devils-shell .dv-profile{min-width:135px;max-width:195px;gap:3px}
+#devils-shell .dv-name{font-size:11px;max-width:115px}
+#devils-shell .dv-level,#devils-shell .dv-resources{font-size:9px}
+#devils-shell .dv-xp{width:45px;height:8px}
+#devils-shell .dv-vitalbar{height:8px}
+#devils-shell .dv-vital-label{font-size:8px}
+#devils-shell .dv-currencies{gap:3px}
+#devils-shell .dv-quick{gap:3px}
+#devils-shell .dv-quick button{width:26px;height:26px;font-size:12px;border-radius:50%}
+#devils-shell .dv-sidebar{transform:translateX(-100%);transition:transform .2s;box-shadow:5px 0 18px #0008}
+#devils-shell .dv-sidebar.mobile-open{transform:translateX(0)}
+body.devils-ui .page{padding-top:20px}
+}
+@media(max-width:440px){
+#devils-shell .dv-avatar{display:none}
+#devils-shell .dv-quick button{width:24px;height:24px;font-size:11px}
+#devils-shell .dv-quick{gap:2px}
+#devils-shell .dv-profile{min-width:125px}
+}
+
+/* Integracja ze starszymi ekranami gry */
+body.devils-ui .main{margin-left:0!important;max-width:none;padding-top:20px!important}
+body.devils-ui .page{padding-top:20px!important}
+body.devils-ui .sidebar{display:none!important}
+body.devils-ui .menu-toggle{display:none!important}
+body.devils-ui .topbar{display:none!important}
+body.devils-ui .main>.profile-grid{margin-top:10px}
+@media(max-width:700px){
+body.devils-ui .main{padding:12px 8px!important}
+body.devils-ui .page{padding:12px 8px!important}
+}
+
+/* POPRAWKA GÓRNEGO PASKA DEVILS */
+:root {
+  --dv-top: 124px;
+}
+
+#devils-shell .dv-topbar {
+  height: var(--dv-top);
+  min-height: var(--dv-top);
+  align-items: center;
+  overflow: visible;
+  gap: 14px;
+}
+
+#devils-shell .dv-profile {
+  flex: 0 1 350px;
+  min-width: 0;
+  max-width: 350px;
+  gap: 4px;
+}
+
+#devils-shell .dv-vitals {
+  gap: 2px;
+}
+
+#devils-shell .dv-vitalbar {
+  height: 11px;
+}
+
+#devils-shell .dv-vital-label {
+  font-size: 10px;
+  line-height: 12px;
+  margin-top: 1px;
+}
+
+#devils-shell .dv-resources {
+  flex-wrap: wrap;
+  row-gap: 4px;
+  white-space: normal;
+}
+
+#devils-shell .dv-currencies {
+  flex-wrap: wrap;
+}
+
+#devils-shell .dv-brand {
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+#devils-shell .dv-quick {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+#devils-shell .dv-quick button {
+  flex: 0 0 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+@media (max-width: 1100px) {
+  #devils-shell .dv-brand {
+    display: none;
+  }
+
+  #devils-shell .dv-topbar {
+    gap: 8px;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  #devils-shell .dv-quick {
+    gap: 5px;
+  }
+}
+
+@media (max-width: 700px) {
+  :root {
+    --dv-top: 112px;
+  }
+
+  #devils-shell .dv-topbar {
+    flex-wrap: wrap;
+    align-content: center;
+    justify-content: space-between;
+    row-gap: 3px;
+  }
+
+  #devils-shell .dv-profile {
+    flex: 1 1 145px;
+    max-width: none;
+  }
+
+  #devils-shell .dv-quick {
+    flex: 0 0 100%;
+    justify-content: center;
+    gap: 7px;
+  }
+
+  #devils-shell .dv-quick button {
+    flex-basis: 28px;
+    width: 28px;
+    height: 28px;
+    font-size: 13px;
+  }
+
+  #devils-shell .dv-vitalbar {
+    height: 8px;
+  }
+
+  #devils-shell .dv-vital-label {
+    font-size: 8px;
+    line-height: 9px;
+  }
+
+  #devils-shell .dv-resources {
+    font-size: 9px;
+    gap: 4px;
+  }
+
+  #devils-shell .dv-currencies {
+    gap: 5px;
+  }
+}

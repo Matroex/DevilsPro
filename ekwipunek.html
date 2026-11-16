@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Moja Gra Idle — Ekwipunek</title>
+<style>
+*{box-sizing:border-box}body{margin:0;padding-left:190px;background:#101112;color:#ddd2ba;font:14px Arial,sans-serif;transition:padding-left .2s}body.menu-closed{padding-left:0}button{cursor:pointer;background:#28251f;border:1px solid #8c723a;color:#e6d4a3;padding:9px 12px;border-radius:3px}button:hover{background:#514026}button:focus-visible,.item:focus-visible{outline:2px solid #e3c777;outline-offset:2px}.sidebar{position:fixed;top:0;bottom:0;left:0;width:190px;background:#191d20;border-right:2px solid #80683b;padding:15px 10px;z-index:10;transition:transform .2s}.sidebar.closed{transform:translateX(-190px)}.sidebar h2{text-align:center;color:#d8b66c;font-size:18px;margin:12px 0 25px}.menu-toggle{position:absolute;top:12px;right:10px;width:38px;height:38px;padding:0}.sidebar.closed .menu-toggle{right:-48px}.menu-link{display:block;width:100%;text-align:left;margin-bottom:8px;padding:12px;background:#292e31;color:white;border:0;border-radius:5px}.menu-link.active{background:#80683b}.main{padding:12px;max-width:1900px;margin:auto}.layout{display:grid;grid-template-columns:minmax(235px,300px) minmax(300px,1fr) minmax(295px,390px);gap:12px;align-items:start}.panel{border:1px solid #826a34;background:linear-gradient(125deg,#201d1c,#141516 80%);box-shadow:inset 0 0 0 2px #272217;min-width:0}.panel-head{padding:14px 16px;border-bottom:1px solid #594a2c;color:#e2cb91;font:bold 17px Georgia,serif;letter-spacing:1px}.panel-sub{padding:12px 16px;color:#c8a65c;font-weight:bold}.gear-stage{padding:20px 12px 24px;min-height:360px;background:radial-gradient(ellipse at 45% 50%,#332032,#18121e 70%)}.gear-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(4,72px);gap:8px;max-width:270px;margin:auto}.gear-slot{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;min-width:0;border:1px solid #7b6235;background:linear-gradient(140deg,#241e1c,#151416);color:#a99b83;text-align:center;font-size:10px;padding:4px}.gear-slot.equipped{border-color:#c5a04d;background:linear-gradient(140deg,#473820,#1d1a16);cursor:pointer}.gear-slot.equipped:hover{box-shadow:0 0 0 2px #d4b566}.gear-slot .symbol{font-size:23px;filter:grayscale(.4);opacity:.8}.gear-slot.weapon{grid-row:1/3;grid-column:1}.gear-slot.helmet{grid-row:1;grid-column:2}.gear-slot.armor{grid-row:2;grid-column:2}.gear-slot.gloves{grid-row:2;grid-column:3}.gear-slot.pants{grid-row:3;grid-column:2}.gear-slot.boots{grid-row:4;grid-column:2}.gear-slot.necklace{grid-row:1;grid-column:3}.gear-slot.ring{grid-row:3;grid-column:3}.gear-slot.core{grid-row:3;grid-column:1}.gear-footer{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px}.gear-footer button{font-weight:bold}.gear-footer button.active{background:#64502d}.gear-hint{color:#928b7e;font-size:12px;padding:0 12px 12px;line-height:1.5}.stats-body{padding:0 18px 20px}.stat-section{margin-top:18px}.stat-section h3{font: bold 13px Georgia,serif;color:#b5c4d0;border-bottom:1px solid #555b5b;padding-bottom:6px;margin:0 0 3px}.stat-line{display:flex;justify-content:space-between;gap:8px;border-bottom:1px solid #2b2c2a;padding:10px 0;color:#a9a69e;font-size:13px}.stat-line b{color:#e1d8c6}.stat-empty{color:#8f8c85;font-style:italic;padding:12px 0;font-size:13px}.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:10px 10px 6px}.tabs button{padding:8px 4px;font-family:Georgia,serif}.tabs button.active{background:#66502b;color:#fff2cb;border-color:#c1a15b}.bag-info{display:flex;justify-content:space-between;padding:4px 12px 10px;color:#aaa295;font-size:12px;gap:8px}.bag-grid{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:3px;padding:0 10px 12px;max-height:600px;overflow:auto}.item{aspect-ratio:1;min-width:0;display:flex;align-items:center;justify-content:center;background:#171716;border:1px solid #4a402b;position:relative;padding:2px;color:#c5bca5;font-size:16px}.item.filled{border-color:#9a7d40;background:radial-gradient(#363021,#191715);color:#e8d397;cursor:pointer}.item.filled:hover,.item.selected{border-color:#e7c86e;background:#40331d}.item span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:9px;max-width:100%;padding:1px}.bag-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;padding:10px;border-top:1px solid #57492b}.bag-actions button{font-size:12px;padding:8px 3px}.gear-item-name{font-size:9px;color:#f3d996;overflow-wrap:anywhere}.details{margin:0 10px 10px;padding:12px;border:1px solid #594a2c;background:#1e1c19;min-height:74px;color:#bdb5a4;line-height:1.5}.details strong{color:#e8d397}.notice{color:#ad9b77;font-size:12px;margin:10px 0 0}.status{color:#b9a16b;font-size:12px;margin:0 0 10px}.visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}@media(max-width:1200px){.layout{grid-template-columns:minmax(220px,300px) minmax(300px,1fr)}.bag-panel{grid-column:1/-1}.bag-grid{grid-template-columns:repeat(10,minmax(0,1fr));max-height:none}}@media(max-width:700px){body{padding-left:0}.main{padding:60px 8px 12px}.layout{grid-template-columns:1fr}.bag-panel{grid-column:auto}.gear-stage{min-height:0}.bag-grid{grid-template-columns:repeat(10,minmax(0,1fr))}.item{font-size:12px}.item span{font-size:7px}}
+</style>
+<link rel="stylesheet" href="interfejs.css">
+<script src="interfejs.js" defer></script>
+</head>
+<body data-devils-page="ekwipunek">
+
+<main class="main"><div class="status" id="heroStatus">Wczytywanie ekwipunku...</div><div class="layout">
+<section class="panel"><div class="panel-head">EKWIPUNEK</div><div class="panel-sub" id="gearCountLeft">0 / 9 slotów założonych</div><div class="gear-stage"><div class="gear-grid" id="gearGrid"></div></div><div class="gear-footer"><button class="active" type="button">Zestaw główny</button><button type="button" title="Dostępne w przyszłości" onclick="showMessage('Zestaw PvP dodamy później.')">Zestaw PvP</button></div><div class="gear-hint">Kliknij założony przedmiot, aby go zdjąć. Testowe przedmioty można założyć ponownie przyciskiem poniżej.<br><button type="button" onclick="restoreDemoGear()">⚔️ Załóż zestaw testowy</button></div></section>
+<section class="panel"><div class="panel-head">STATYSTYKI EKWIPUNKU</div><div class="panel-sub" id="gearCountCenter">0 / 9 slotów założonych</div><div class="stats-body"><div class="stat-section"><h3>OBRAŻENIA I OBRONA</h3><div class="stat-line"><span>Obrażenia broni</span><b id="gearDamage">—</b></div><div class="stat-line"><span>Magiczne obrażenia broni</span><b id="gearMagic">—</b></div><div class="stat-line"><span>Obrona</span><b id="gearDefense">—</b></div><div class="stat-line"><span>Szansa na trafienie krytyczne</span><b id="gearCrit">—</b></div><div class="stat-line"><span>Blok</span><b id="gearBlock">—</b></div></div><div class="stat-section"><h3>SZYBKOŚCI</h3><div class="stat-line"><span>Szybkość ataku</span><b id="gearSpeed">—</b></div><div class="stat-line"><span>Szybkość ruchu</span><b>—</b></div><div class="stat-line"><span>Szybkość zaklęć</span><b>—</b></div></div><div class="stat-section"><h3>ATRYBUTY POSTACI</h3><div id="attributes"></div></div><div class="stat-section"><h3>ODPORNOŚCI</h3><div class="stat-empty">Odporności dodamy podczas rozbudowy systemu przedmiotów.</div></div><div class="stat-section"><h3>POZOSTAŁE</h3><div class="stat-empty">Miejsce na przyszłe premie ekwipunku.</div></div></div></section>
+<section class="panel bag-panel"><div class="panel-head">INWENTARZ</div><div class="tabs" id="tabs"></div><div class="bag-info"><span id="bagCount">Przedmioty: 0 / 400</span><span id="pageCount">Zakładka 1 / 4</span></div><div class="bag-grid" id="bagGrid"></div><div class="details" id="details">Kliknij przedmiot, aby zobaczyć jego nazwę i numer miejsca.</div><div class="bag-actions"><button onclick="sortPreview()">Sortuj</button><button onclick="toggleSelectMode()" id="selectButton">Zaznacz</button><button onclick="showMessage('Blokowanie przedmiotów dodamy później.')">Zablokuj</button></div></section>
+</div><p class="notice" id="message" role="status"></p></main>
+<script>
+const loggedUser=sessionStorage.getItem('idleLoggedUser');
+const slotRaw=sessionStorage.getItem('idleActiveSlot');
+const activeSlot=slotRaw===null?NaN:Number(slotRaw);
+if(!loggedUser){window.location.replace('login.html')}
+else if(!Number.isInteger(activeSlot)||activeSlot<0||activeSlot>4){window.location.replace('postacie.html')}
+const statsNames=['Siła','Inteligencja','Szybkość','Wytrzymałość','Energia'];
+const gearSlots=[['weapon','⚔️','Broń'],['helmet','🪖','Hełm'],['armor','🧥','Zbroja'],['gloves','🧤','Rękawice'],['pants','👖','Spodnie'],['boots','🥾','Buty'],['necklace','📿','Naszyjnik'],['ring','💍','Pierścień'],['core','🔮','Rdzeń']];
+const DEMO_GEAR={
+ weapon:{name:'Miecz Strażnika',icon:'⚔️',damage:28,stats:{'Siła':3}},
+ helmet:{name:'Żelazny Hełm',icon:'🪖',defense:12,stats:{'Wytrzymałość':2}},
+ armor:{name:'Zbroja Wędrowca',icon:'🧥',defense:35,stats:{'Wytrzymałość':4}},
+ gloves:{name:'Rękawice Łowcy',icon:'🧤',defense:7,crit:3,stats:{'Szybkość':2}},
+ pants:{name:'Spodnie Strażnika',icon:'👖',defense:14,stats:{'Wytrzymałość':1}},
+ boots:{name:'Buty Tropiciela',icon:'🥾',defense:8,speed:5,stats:{'Szybkość':2}},
+ necklace:{name:'Naszyjnik Many',icon:'📿',magic:12,stats:{'Inteligencja':3}},
+ ring:{name:'Pierścień Siły',icon:'💍',crit:2,stats:{'Siła':2}},
+ core:null
+};
+const GEAR_KEY='idleDemoEquipment_'+loggedUser+'_'+activeSlot;
+let equipment={};
+function saveGear(){localStorage.setItem(GEAR_KEY,JSON.stringify(equipment))}
+function loadGear(){
+ try{const stored=localStorage.getItem(GEAR_KEY);equipment=stored?JSON.parse(stored):structuredClone(DEMO_GEAR)}catch(e){equipment=structuredClone(DEMO_GEAR)}
+ if(!equipment||typeof equipment!=='object'||Array.isArray(equipment))equipment=structuredClone(DEMO_GEAR);if(equipment.core?.name==='Rdzeń Energii'&&equipment.core.type!=='energy_core')delete equipment.core;
+ saveGear();renderGear();renderGearStats();renderAttributes();
+}
+function restoreDemoGear(){equipment=structuredClone(DEMO_GEAR);saveGear();renderGear();renderGearStats();renderAttributes();showMessage('Założono 9 testowych przedmiotów.')}
+function unequipGear(key){if(!equipment[key])return;const name=equipment[key].name;if(key==='core'&&equipment[key].type==='energy_core'){const pos=inventory.findIndex(x=>!x);const idx=pos<0?inventory.length:pos;if(idx>=400)return showMessage('Brak miejsca w inwentarzu.');inventory[idx]=equipment[key];saveInventory()}delete equipment[key];saveGear();renderGear();renderGearStats();renderAttributes();renderBag();showMessage('Zdjęto: '+name+'. Aby ponownie założyć zestaw, użyj przycisku pod wyposażeniem.')}
+function renderGearStats(){
+ const items=Object.values(equipment).filter(Boolean);
+ const count=items.length;
+ for(const id of ['gearCountLeft','gearCountCenter'])document.getElementById(id).textContent=count+' / 9 slotów założonych';
+ const sum=key=>items.reduce((total,item)=>total+(Number(item[key])||0),0);
+ for(const [id,key,suffix] of [['gearDamage','damage',''],['gearMagic','magic',''],['gearDefense','defense',''],['gearCrit','crit','%'],['gearBlock','block','%'],['gearSpeed','speed','%']]){
+  const value=sum(key);document.getElementById(id).textContent=value?(suffix?'+'+value+suffix:String(value)):'—';
+ }
+}
+let inventory=[];let hero=null;let tab=0;let selectedIndex=null;let selectMode=false;let previewOrder=null;
+function showMessage(message){document.getElementById('message').textContent=message}
+function goTo(page){if(page==='postacie.html')sessionStorage.removeItem('idleActiveSlot');window.location.href=page}
+function toggleMenu(){const closed=document.getElementById('sidebar').classList.toggle('closed');document.body.classList.toggle('menu-closed',closed);localStorage.setItem('idleMenuClosed',closed?'1':'0')}
+if(localStorage.getItem('idleMenuClosed')==='1'){document.getElementById('sidebar').classList.add('closed');document.body.classList.add('menu-closed')}
+function loadData(){try{const slots=JSON.parse(localStorage.getItem('idleSlots_'+loggedUser));const data=Array.isArray(slots)?slots[activeSlot]:null;if(!data||!data.hero){document.getElementById('heroStatus').textContent='Nie znaleziono zapisanej postaci w tym slocie.';return}hero=data.hero;inventory=Array.isArray(data.inventory)?data.inventory:[];loadGear();document.getElementById('heroStatus').textContent='Postać: '+(hero.name||hero.characterClass||'Bohater')+' · Poziom '+(hero.level??1);renderAttributes();renderBag()}catch(e){console.error(e);document.getElementById('heroStatus').textContent='Nie udało się odczytać ekwipunku.'}}
+function renderGear(){
+ const grid=document.getElementById('gearGrid');grid.innerHTML='';
+ gearSlots.forEach(([cls,icon,label])=>{
+  const item=equipment[cls];
+  const el=document.createElement('button');el.type='button';el.className='gear-slot '+cls+(item?' equipped':'');
+  el.title=item?item.name+' — kliknij, aby zdjąć':label+' — pusty slot';
+  const symbol=document.createElement('div');symbol.className='symbol';symbol.textContent=item?.icon||icon;
+  const text=document.createElement('span');text.className='gear-item-name';text.textContent=item?.name||label;
+  el.append(symbol,text);
+  if(item)el.onclick=()=>unequipGear(cls);
+  grid.appendChild(el);
+ });
+}
+function renderAttributes(){
+ const root=document.getElementById('attributes');root.innerHTML='';
+ statsNames.forEach(name=>{
+  const base=Number(hero?.stats?.[name])||0;
+  const bonus=Object.values(equipment).filter(Boolean).reduce((sum,item)=>sum+(Number(item.stats?.[name])||0),0);
+  const row=document.createElement('div');row.className='stat-line';
+  const label=document.createElement('span');label.textContent=name;
+  const val=document.createElement('b');val.textContent=(hero?base:'—')+(bonus?' (+'+bonus+' sprzęt)':'');
+  row.append(label,val);root.appendChild(row);
+ });
+}
+function renderTabs(){const root=document.getElementById('tabs');root.innerHTML='';for(let i=0;i<4;i++){const b=document.createElement('button');b.textContent=['I','II','III','IV'][i];b.className=i===tab?'active':'';b.setAttribute('aria-label','Zakładka '+(i+1));b.onclick=()=>{tab=i;selectedIndex=null;previewOrder=null;renderBag()};root.appendChild(b)}}
+function saveInventory(){const key='idleSlots_'+loggedUser;const slots=JSON.parse(localStorage.getItem(key)||'[]');if(!slots[activeSlot])return;slots[activeSlot].inventory=inventory;localStorage.setItem(key,JSON.stringify(slots))}
+function itemName(item){return item&&typeof item==='object'?(item.icon||'🔮')+' '+(item.name||'Przedmiot'):String(item)}
+function equipCore(){const item=inventory[selectedIndex];if(!item||typeof item!=='object'||item.type!=='energy_core')return;const previous=equipment.core;if(previous?.type==='energy_core')inventory[selectedIndex]=previous;else inventory[selectedIndex]=null;equipment.core=item;saveGear();saveInventory();renderGear();renderGearStats();renderAttributes();renderBag();showMessage('Założono '+item.name+'. Bonusy rdzenia ustalimy później.')}
+function renderBag(){renderTabs();const grid=document.getElementById('bagGrid');grid.innerHTML='';document.getElementById('bagCount').textContent='Przedmioty: '+inventory.filter(Boolean).length+' / 400';document.getElementById('pageCount').textContent='Zakładka '+(tab+1)+' / 4';const start=tab*100;const indices=previewOrder||Array.from({length:100},(_,i)=>start+i);indices.forEach(index=>{const item=inventory[index];const slot=document.createElement('button');slot.className='item'+(item?' filled':'')+(selectedIndex===index?' selected':'');slot.title=item?itemName(item)+' | Slot '+(index+1):'Pusty slot '+(index+1);slot.setAttribute('aria-label',slot.title);if(item){const text=document.createElement('span');text.textContent=itemName(item);slot.appendChild(text)}slot.onclick=()=>{selectedIndex=index;document.getElementById('details').textContent=item?'Przedmiot: '+itemName(item)+' · Miejsce '+(index+1):'Pusty slot · Miejsce '+(index+1);renderBag();if(item&&typeof item==='object'&&item.type==='energy_core'){const b=document.createElement('button');b.textContent='🔮 Załóż rdzeń';b.style.margin='8px';b.onclick=e=>{e.stopPropagation();equipCore()};document.getElementById('details').appendChild(b)}};grid.appendChild(slot)})}
+function sortPreview(){const start=tab*100;previewOrder=Array.from({length:100},(_,i)=>start+i).sort((a,b)=>{const aa=inventory[a],bb=inventory[b];if(!aa&&!bb)return a-b;if(!aa)return 1;if(!bb)return -1;return String(aa).localeCompare(String(bb),'pl')});showMessage('Posortowano widok zakładki. Zapis przedmiotów nie został zmieniony.');renderBag()}
+function toggleSelectMode(){selectMode=!selectMode;document.getElementById('selectButton').textContent=selectMode?'Zakończ wybór':'Zaznacz';showMessage(selectMode?'Kliknij przedmiot, aby go podświetlić.':'Zakończono zaznaczanie.')}
+loadData();
+</script>
+</body></html>

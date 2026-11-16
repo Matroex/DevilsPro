@@ -1,0 +1,611 @@
+
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Moja Gra Idle</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#111315;color:#e6dfd0;font-family:Arial,sans-serif}
+header{background:#1c2022;border-bottom:2px solid #80683b;padding:18px;text-align:center}
+h1{margin:0;color:#d8b66c;font-size:26px}
+h2{color:#d8b66c;font-size:19px}
+main{max-width:1100px;margin:auto;padding:18px}
+.panel{background:#202426;border:1px solid #41443e;border-radius:8px;padding:18px;margin-bottom:15px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+button{background:#80683b;color:white;border:0;padding:11px 16px;border-radius:5px;cursor:pointer;margin:4px}
+button:hover{background:#a3854d}
+button:disabled{opacity:.4;cursor:not-allowed}
+.bar{background:#101214;height:22px;border-radius:5px;overflow:hidden;margin:8px 0}
+.fill{height:100%;background:#548454;width:0%;transition:width .3s}
+.exp{background:#517aa5}
+.log{height:170px;overflow:auto;background:#151819;padding:10px;font-size:13px;line-height:1.6}
+.stat{display:flex;justify-content:space-between;border-bottom:1px solid #383d3d;padding:7px 0}
+.small{color:#aaa;font-size:13px}
+.hidden{display:none}
+@media(max-width:700px){.grid{grid-template-columns:1fr}}
+
+.inventory-tabs{
+ display:flex;
+ flex-wrap:wrap;
+ gap:5px;
+ margin-bottom:12px;
+}
+
+.inventory-tabs button.active{
+ background:#c39a4d;
+ color:#111;
+ font-weight:bold;
+}
+
+.inventory-grid{
+ display:grid;
+ grid-template-columns:repeat(10,minmax(0,1fr));
+ gap:5px;
+}
+
+.inventory-slot{
+ aspect-ratio:1;
+ background:#151819;
+ border:1px solid #454b49;
+ border-radius:5px;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ text-align:center;
+ padding:3px;
+ font-size:10px;
+ overflow:hidden;
+ overflow-wrap:anywhere;
+ cursor:default;
+}
+
+.inventory-slot.filled{
+ background:#30372e;
+ border-color:#8b7446;
+ color:#e4c781;
+ cursor:pointer;
+}
+
+.inventory-slot:hover{
+ border-color:#d8b66c;
+}
+
+@media(max-width:600px){
+ .inventory-grid{gap:2px}
+ .inventory-slot{font-size:8px;padding:1px}
+}
+
+/* BOCZNY INTERFEJS GRY */
+
+.game-sidebar{
+ position:fixed;
+ top:0;
+ left:0;
+ bottom:0;
+ width:190px;
+ background:#191d20;
+ border-right:2px solid #80683b;
+ padding:15px 10px;
+ z-index:1000;
+ transition:transform .25s;
+}
+
+.game-sidebar.closed{
+ transform:translateX(-190px);
+}
+
+.game-sidebar h2{
+ color:#d8b66c;
+ font-size:18px;
+ text-align:center;
+ margin:12px 0 25px;
+}
+
+.game-menu-link{
+ display:block;
+ width:100%;
+ text-align:left;
+ margin-bottom:8px;
+ padding:13px;
+ border:0;
+ border-radius:5px;
+ background:#292e31;
+ color:white;
+ cursor:pointer;
+}
+
+.game-menu-link:hover{
+ background:#80683b;
+}
+
+.game-menu-link.active{
+ background:#80683b;
+}
+
+.game-menu-toggle{
+ position:absolute;
+ top:12px;
+ right:10px;
+ width:38px;
+ height:38px;
+ padding:0;
+ border:0;
+ border-radius:5px;
+ background:#80683b;
+ color:white;
+ font-size:22px;
+ cursor:pointer;
+ z-index:1001;
+}
+
+.game-sidebar.closed .game-menu-toggle{
+ right:-48px;
+}
+
+/* MIEJSCE NA MENU */
+
+body{
+ transition:padding-left .25s;
+ padding-left:190px;
+}
+
+body.game-menu-closed{
+ padding-left:0;
+}
+
+@media(max-width:700px){
+ body{
+  padding-left:0;
+ }
+}
+
+</style>
+</head>
+<body>
+
+<!-- BOCZNE MENU GRY -->
+
+<nav id="gameSidebar" class="game-sidebar">
+
+ <button class="game-menu-toggle" onclick="toggleGameMenu()">
+  ☰
+ </button>
+
+ <h2>⚔️ INTERFEJS</h2>
+
+ <button class="game-menu-link"
+  onclick="goToDashboard()">
+  🏠 Pulpit
+ </button>
+
+ <button class="game-menu-link">
+  🧙 Postać
+ </button>
+
+ <button class="game-menu-link" onclick="window.location.href='mapa.html'">
+ 🗺️ Mapa
+</button>
+
+ <button class="game-menu-link">
+  🎒 Ekwipunek
+ </button>
+
+ <button class="game-menu-link">
+  ⚔️ PvP
+ </button>
+
+ <button class="game-menu-link">
+  📬 Poczta
+ </button>
+
+ <button class="game-menu-link">
+  🛡️ Gildia
+ </button>
+
+ <button class="game-menu-link"
+  onclick="goToCharacterSelection()">
+  👥 Wybór postaci
+ </button>
+
+</nav>
+
+<header>
+<h1>⚔️ MOJA GRA IDLE</h1>
+<div class="small">Mroczne średniowiecze</div>
+</header>
+
+<main>
+    <div style="text-align:right;margin-bottom:12px">
+ <button onclick="logout()">🚪 Wyloguj się</button>
+ <button onclick="backToCharacters()">👥 Wybór postaci</button>
+</div>
+<section id="creation" class="panel">
+<h2>Stwórz postać</h2>
+<p>Wybierz klasę:</p>
+<button onclick="createCharacter('Łowca')">Łowca</button>
+<button onclick="createCharacter('Devil')">Devil</button>
+<button onclick="createCharacter('Demon')">Demon</button>
+</section>
+
+<div id="game" class="hidden">
+<div class="grid">
+<section class="panel">
+<h2>🧙 Postać</h2>
+<p>Klasa: <b id="className"></b></p>
+<p>Poziom: <b id="level"></b></p>
+<p>❤️ Życie: <span id="hpText"></span></p>
+<div class="bar"><div class="fill" id="hpBar"></div></div>
+<p>⭐ EXP: <span id="expText"></span></p>
+<div class="bar"><div class="fill exp" id="expBar"></div></div>
+<p>🪙 Złoto: <b id="gold"></b></p>
+</section>
+
+<section class="panel">
+<h2>📊 Statystyki</h2>
+<div id="stats"></div>
+<p>Wolne punkty: <b id="points"></b></p>
+</section>
+
+<section class="panel">
+<h2>🌲 Polowanie</h2>
+<p>Lokalizacja: <b>Skraj Lasu</b></p>
+<p>Przeciwnik: <b id="monsterName"></b></p>
+<p>❤️ Potwór: <span id="monsterHp"></span></p>
+<div class="bar"><div class="fill" id="monsterBar"></div></div>
+<button id="huntButton" onclick="toggleHunt()">▶ Rozpocznij polowanie</button>
+<p class="small">Walka odbywa się automatycznie.</p>
+</section>
+
+<section class="panel">
+<h2>📜 Dziennik walk</h2>
+<div id="log" class="log"></div>
+</section>
+</div>
+
+<section class="panel">
+<h2>🎒 Ekwipunek</h2>
+<p class="small">Przedmioty zdobyte podczas polowania</p>
+
+<div class="inventory-tabs">
+  <button onclick="changeInventoryTab(0)">Zakładka 1</button>
+  <button onclick="changeInventoryTab(1)">Zakładka 2</button>
+  <button onclick="changeInventoryTab(2)">Zakładka 3</button>
+  <button onclick="changeInventoryTab(3)">Zakładka 4</button>
+</div>
+<p id="inventoryCount" class="small"></p>
+<div id="inventory" class="inventory-grid"></div>
+
+</section>
+
+<section class="panel">
+<h2>🔒 Systemy do rozbudowy</h2>
+<p>Mapa świata · Ekwipunek · Umiejętności · PvP · Ranking · Poczta · Gildie · Handel</p>
+</section>
+</div>
+</main>
+
+<script>
+
+const loggedUser=sessionStorage.getItem("idleLoggedUser");
+
+if(!loggedUser){
+ window.location.replace("login.html");
+}
+
+const activeSlot=Number(sessionStorage.getItem("idleActiveSlot"));
+
+if(
+ sessionStorage.getItem("idleActiveSlot")===null ||
+ !Number.isInteger(activeSlot) ||
+ activeSlot<0 ||
+ activeSlot>4
+){
+ window.location.replace("postacie.html");
+}
+
+const SAVE_KEY="idleSlots_"+loggedUser;
+
+
+function saveGame(){
+ if(!hero||!loggedUser)return;
+
+ let slots;
+ try{
+  slots=JSON.parse(localStorage.getItem(SAVE_KEY));
+ }catch(e){
+  slots=null;
+ }
+
+ if(!Array.isArray(slots)){
+  slots=[null,null,null,null,null];
+ }
+
+ slots[activeSlot]={
+  hero:hero,
+  inventory:inventory
+ };
+
+ localStorage.setItem(SAVE_KEY,JSON.stringify(slots));
+}
+
+
+
+function loadGame(){
+ try{
+  const slots=JSON.parse(localStorage.getItem(SAVE_KEY));
+
+  if(!Array.isArray(slots))return;
+
+  const data=slots[activeSlot];
+
+  if(!data||!data.hero)return;
+
+  hero=data.hero;
+  inventory=Array.isArray(data.inventory)?data.inventory:[];
+
+  document.getElementById("creation").classList.add("hidden");
+  document.getElementById("game").classList.remove("hidden");
+
+  spawnMonster();
+  render();
+  log("Wczytano postać ze slotu "+(activeSlot+1)+".");
+ }catch(error){
+  console.error("Błąd wczytywania:",error);
+ }
+}
+
+
+function logout(){
+ saveGame();
+ sessionStorage.removeItem("idleLoggedUser");
+ window.location.href="login.html";
+}
+
+const statNames=["Siła","Inteligencja","Szybkość","Wytrzymałość","Energia"];
+let hero=null;
+let monster=null;
+let hunting=false;
+let lastAttack=0;
+
+let inventory=[];
+let currentInventoryTab=0;
+const INVENTORY_PAGE_SIZE=100;
+const INVENTORY_MAX_SLOTS=400;
+
+const lootTable=[
+ {name:"Zardzewiały miecz",chance:15},
+ {name:"Skórzana zbroja",chance:12},
+ {name:"Stare buty",chance:10},
+ {name:"Żelazny hełm",chance:7},
+ {name:"Srebrny pierścień",chance:3}
+];
+
+function dropItem(){
+ for(const item of lootTable){
+  if(Math.random()*100<item.chance){
+   if(inventory.length>=INVENTORY_MAX_SLOTS){
+ log("🎒 Ekwipunek pełny! Przedmiot nie został zabrany.");
+ return;
+}
+inventory.push(item.name);
+   log("🎁 Zdobyto przedmiot: "+item.name);
+   break;
+  }
+ }
+}
+
+function changeInventoryTab(tab){
+ currentInventoryTab=tab;
+ renderInventory();
+}
+
+function renderInventory(){
+ const box=document.getElementById("inventory");
+ const start=currentInventoryTab*INVENTORY_PAGE_SIZE;
+
+ box.innerHTML="";
+
+ for(let i=0;i<INVENTORY_PAGE_SIZE;i++){
+  const slotIndex=start+i;
+  const item=inventory[slotIndex];
+
+  const slot=document.createElement("div");
+  slot.className="inventory-slot";
+
+  if(item){
+   slot.classList.add("filled");
+   slot.textContent=item;
+   slot.title=item+" | Slot "+(slotIndex+1);
+  }else{
+   slot.title="Pusty slot "+(slotIndex+1);
+  }
+
+  box.appendChild(slot);
+ }
+
+ document.getElementById("inventoryCount").textContent=
+  "Przedmioty: "+inventory.length+
+  " / "+INVENTORY_MAX_SLOTS+
+  " | Zakładka "+(currentInventoryTab+1)+"/4";
+
+ document.querySelectorAll(".inventory-tabs button")
+  .forEach((button,index)=>{
+   button.classList.toggle(
+    "active",
+    index===currentInventoryTab
+   );
+  });
+}
+
+function createCharacter(characterClass){
+ hero={
+  characterClass,level:1,exp:0,gold:0,
+  hp:100,maxHp:100,points:0,
+  stats:{"Siła":5,"Inteligencja":5,"Szybkość":5,"Wytrzymałość":5,"Energia":5}
+ };
+ document.getElementById("creation").classList.add("hidden");
+ document.getElementById("game").classList.remove("hidden");
+ spawnMonster();
+ log("Utworzono postać: "+characterClass);
+ render();
+}
+
+function requiredExp(){
+ return hero.level*100;
+}
+
+function spawnMonster(){
+ const names=["Wilk","Bandyta","Dziki pies"];
+ const name=names[Math.floor(Math.random()*names.length)];
+ const maxHp=35+hero.level*12;
+ monster={name,hp:maxHp,maxHp};
+}
+
+function toggleHunt(){
+ hunting=!hunting;
+ document.getElementById("huntButton").textContent=
+ hunting?"⏸ Zatrzymaj polowanie":"▶ Rozpocznij polowanie";
+ lastAttack=Date.now();
+}
+
+function fight(){
+ if(!hero||!hunting)return;
+ const now=Date.now();
+ if(now-lastAttack<1200)return;
+ lastAttack=now;
+
+ const damage=5+hero.stats["Siła"]*2+hero.level;
+ monster.hp=Math.max(0,monster.hp-damage);
+ log("Zadajesz "+damage+" obrażeń: "+monster.name);
+
+ if(monster.hp<=0){
+  const gainedExp=20+hero.level*5;
+  const gainedGold=3+hero.level*2;
+  hero.exp+=gainedExp;
+  hero.gold+=gainedGold;
+  log("Pokonano: "+monster.name+"! +"+gainedExp+" EXP, +"+gainedGold+" złota.");
+
+  while(hero.exp>=requiredExp()){
+   hero.exp-=requiredExp();
+   hero.level++;
+   hero.points+=5;
+   hero.maxHp+=10;
+   hero.hp=hero.maxHp;
+   log("🎉 Nowy poziom: "+hero.level+"! +5 punktów statystyk.");
+  }
+  dropItem();
+spawnMonster();
+}else{
+  const received=Math.max(1,8+hero.level-hero.stats["Wytrzymałość"]);
+  hero.hp=Math.max(0,hero.hp-received);
+  if(hero.hp===0){
+   hero.exp=Math.floor(hero.exp*0.95);
+   hero.hp=hero.maxHp;
+   hunting=false;
+   document.getElementById("huntButton").textContent="▶ Rozpocznij polowanie";
+   log("💀 Postać zginęła. Utracono 5% aktualnego EXP.");
+  }
+ }
+ render();
+}
+
+function addStat(name){
+ if(hero.points<=0)return;
+ hero.stats[name]++;
+ hero.points--;
+ if(name==="Wytrzymałość"){
+  hero.maxHp+=10;
+  hero.hp+=10;
+ }
+ render();
+}
+
+function render(){
+    renderInventory();
+ document.getElementById("className").textContent=hero.characterClass;
+ document.getElementById("level").textContent=hero.level;
+ document.getElementById("hpText").textContent=hero.hp+" / "+hero.maxHp;
+ document.getElementById("hpBar").style.width=(hero.hp/hero.maxHp*100)+"%";
+ document.getElementById("expText").textContent=hero.exp+" / "+requiredExp();
+ document.getElementById("expBar").style.width=(hero.exp/requiredExp()*100)+"%";
+ document.getElementById("gold").textContent=hero.gold;
+ document.getElementById("points").textContent=hero.points;
+ document.getElementById("monsterName").textContent=monster.name;
+ document.getElementById("monsterHp").textContent=monster.hp+" / "+monster.maxHp;
+ document.getElementById("monsterBar").style.width=(monster.hp/monster.maxHp*100)+"%";
+
+ document.getElementById("stats").innerHTML=statNames.map(name=>
+  '<div class="stat"><span>'+name+': '+hero.stats[name]+
+  '</span><button '+(hero.points===0?"disabled":"")+
+  ' onclick="addStat(\''+name+'\')">+</button></div>'
+ ).join("");
+}
+
+function log(message){
+ const box=document.getElementById("log");
+ const line=document.createElement("div");
+ line.textContent=message;
+ box.prepend(line);
+ while(box.children.length>60)box.lastChild.remove();
+}
+
+setInterval(fight,200);
+
+setInterval(saveGame,3000);
+
+window.addEventListener("pagehide",saveGame);
+
+loadGame();
+function backToCharacters(){
+ saveGame();
+ sessionStorage.removeItem("idleActiveSlot");
+ window.location.href="postacie.html";
+}
+
+/* OBSŁUGA BOCZNEGO MENU */
+
+function toggleGameMenu(){
+ const sidebar=document.getElementById("gameSidebar");
+
+ const isClosed=sidebar.classList.toggle("closed");
+
+ document.body.classList.toggle(
+  "game-menu-closed",
+  isClosed
+ );
+
+ localStorage.setItem(
+  "idleMenuClosed",
+  isClosed?"1":"0"
+ );
+}
+
+function goToDashboard(){
+ if(typeof saveGame==="function"){
+  saveGame();
+ }
+
+ window.location.href="pulpit.html";
+}
+
+function goToCharacterSelection(){
+ if(typeof saveGame==="function"){
+  saveGame();
+ }
+
+ sessionStorage.removeItem("idleActiveSlot");
+ window.location.href="postacie.html";
+}
+
+/* PRZYWRÓCENIE STANU MENU */
+
+if(localStorage.getItem("idleMenuClosed")==="1"){
+ document.getElementById("gameSidebar").classList.add("closed");
+ document.body.classList.add("game-menu-closed");
+}
+
+</script>
+</body>
+</html>
