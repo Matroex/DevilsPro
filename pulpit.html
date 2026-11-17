@@ -126,7 +126,7 @@ body.menu-closed .main{
 
 .profile-grid{
  display:grid;
- grid-template-columns:1fr 1.2fr 1.5fr;
+ grid-template-columns:minmax(0,1fr) minmax(0,1.15fr) minmax(0,1.45fr);
  gap:18px;
 }
 
@@ -244,6 +244,63 @@ body.menu-closed .main{
 </style>
 <link rel="stylesheet" href="interfejs.css">
 <script src="interfejs.js" defer></script>
+<style id="devils-look-style">
+.character-preview.devils-look{height:auto;min-height:395px;border-style:solid}.devils-look{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;min-height:350px;background:radial-gradient(ellipse at 50% 45%,#492820 0%,#241518 56%,#110d0f 100%);border:1px solid #806337;position:relative;overflow:hidden;padding:10px}
+.devils-look:before{content:'✦';position:absolute;top:10px;left:13px;color:#d3a956}.devils-look img{display:block;width:auto;height:340px;max-width:100%;object-fit:contain;filter:drop-shadow(0 9px 15px #0009)}
+.devils-look .look-title{font:15px Georgia,serif;color:#e8cd91;text-align:center}.devils-look .look-sub{font:12px Georgia,serif;color:#c7a76c;text-align:center}.devils-look .look-error{font-size:12px;color:#e1a89a}
+.gear-stage .devils-look{min-height:320px;margin-bottom:15px}.gear-stage .devils-look img{height:290px}
+@media(max-width:700px){.devils-look img{height:300px}}
+
+/* DevilsPro V2: zapobiega rozszerzaniu pulpitu poza okno. */
+html,body{max-width:100%;overflow-x:clip}
+.main{min-width:0;width:auto;max-width:100%;padding-top:18px}
+.profile-grid{width:100%;min-width:0;gap:14px}
+.profile-grid>.panel{min-width:0;overflow:hidden}
+.equipment{width:100%;max-width:340px;grid-template-columns:repeat(3,minmax(0,1fr))}
+.equipment-slot{min-width:0;overflow-wrap:anywhere;word-break:break-word;padding:5px;font-size:11px}
+.character-preview.devils-look{width:100%;min-width:0;min-height:410px;padding:10px 6px;justify-content:flex-start}
+.devils-look .look-title{flex:none}
+.devils-look .look-sub{flex:none;max-width:100%;overflow-wrap:anywhere}
+.devils-rotator{width:100%;height:322px;display:flex;align-items:center;justify-content:center;perspective:950px;touch-action:pan-y;cursor:default;overflow:hidden}
+.devils-rotator.is-enabled{cursor:grab;touch-action:none}
+.devils-rotator.is-dragging{cursor:grabbing}
+.devils-rotator .rotor{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .45s ease}
+.devils-rotator.is-dragging .rotor{transition:none}
+.devils-rotator .rotor-face{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;backface-visibility:hidden}
+.devils-rotator .rotor-face.back{transform:rotateY(180deg)}
+.devils-rotator .rotor-face img{height:310px;max-width:100%;object-fit:contain;user-select:none;-webkit-user-drag:none}
+.devils-rotator .rotor-face.back img{transform:scaleX(-1)}
+.devils-rotate-tools{display:flex;align-items:center;justify-content:center;gap:9px;flex-wrap:wrap;width:100%;padding-top:7px}
+.devils-rotate-tools button{border:1px solid #a18143;border-radius:2px;background:#251c17;color:#ebd39d;font:12px Georgia,serif;padding:8px 12px}
+.devils-rotate-tools button[aria-pressed=true]{background:#65401e;border-color:#e6bd65}
+.devils-rotate-degrees{font:12px Georgia,serif;color:#d2ad68;min-width:45px;text-align:center}
+.devils-rotate-hint{font:11px Georgia,serif;color:#ad9d83;text-align:center;margin-top:4px}
+@media(max-width:1350px){.profile-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.stats-panel{grid-column:1/-1}}
+@media(max-width:800px){.profile-grid{grid-template-columns:minmax(0,1fr)}.stats-panel{grid-column:auto}.main{padding:72px 10px 15px}}
+/* Pulpit uses shared shell padding; do not apply the legacy sidebar margin twice. */
+body.devils-ui .main,body.devils-ui.menu-closed .main{margin-left:0!important;width:100%!important;max-width:100%!important;padding:18px 16px 24px!important;min-width:0}
+body.devils-ui .profile-grid{grid-template-columns:minmax(285px,1.05fr) minmax(300px,1.12fr) minmax(330px,1.4fr);gap:14px;align-items:stretch}
+body.devils-ui .profile-grid>.panel{min-width:0}
+body.devils-ui .topbar{min-width:0}
+body.devils-ui .character-preview.devils-look{min-height:455px;justify-content:center}
+body.devils-ui .character-preview.devils-look>img{height:380px;max-height:50vh}
+@media(max-width:1450px){body.devils-ui .profile-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}body.devils-ui .stats-panel{grid-column:1/-1}}
+@media(max-width:850px){body.devils-ui .profile-grid{grid-template-columns:minmax(0,1fr)}body.devils-ui .stats-panel{grid-column:auto}}
+@media(max-width:700px){body.devils-ui .main{padding:12px 10px 20px!important}}
+/* 3D model viewport */
+body.devils-ui .character-preview.model3d-host{display:flex;flex-direction:column;gap:9px;min-height:490px;height:auto;padding:8px;background:radial-gradient(ellipse at center,#342021 0%,#151012 72%);border:1px solid #8d6b38;overflow:hidden}
+.model3d-stage{width:100%;height:445px;min-height:320px;touch-action:pan-y;cursor:default}
+.model3d-stage.can-rotate{touch-action:none;cursor:grab}
+.model3d-stage.can-rotate:active{cursor:grabbing}
+.model3d-stage canvas{display:block;width:100%;height:100%}
+.model3d-controls{display:flex;justify-content:center;align-items:center;gap:12px;color:#d8b66c;font:13px Georgia,serif;padding:2px 0 7px}
+.model3d-controls button{border:1px solid #9d7b40;background:#231a16;color:#e6c985;border-radius:2px;font:13px Georgia,serif;padding:8px 16px}
+.model3d-controls button[aria-pressed=true]{background:#5a3a1c;border-color:#e2b45d}
+.model3d-error{color:#e5c48b;padding:25px;font:13px Georgia,serif}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js" defer></script>
+<script src="wyglad_postaci.js" defer></script>
+<script src="model_3d.js" defer></script>
 </head>
 
 <body data-devils-page="pulpit">
@@ -271,7 +328,7 @@ body.menu-closed .main{
   <section class="panel">
    <h2>Postać</h2>
 
-   <div class="character-preview">
+   <div class="character-preview" id="devilsCharacterPreview">
     Podgląd wyglądu postaci
    </div>
   </section>
@@ -281,7 +338,7 @@ body.menu-closed .main{
   <section class="panel">
    <h2>Założony ekwipunek</h2>
 
-   <div class="equipment">
+   <div class="equipment" id="devilsEquippedSlots">
     <div class="equipment-slot">Broń</div>
     <div class="equipment-slot">Hełm</div>
     <div class="equipment-slot">Zbroja</div>

@@ -63,16 +63,14 @@ function treeSummary(){
  return entries.map(([k,v])=>(BONUS_LABELS[k]||k)+': +'+pretty(v)+(isPp(k)?' pp':'%')).join(' • ');
 }
 function save(){localStorage.setItem(key,JSON.stringify(state))}
-function syncLevel(){if(!hero||energy===null||level===null)return;const quest=alekQuest();if(quest?.status==='completed'&&quest.element&&level>=2&&energy>=50){if(rebirthCount()===0&&state.main!==quest.element){state.main=quest.element;save()}if(!state.unlocked){state.unlocked=true;state.lastLevel=level;save()}}if(state.unlocked){if(state.lastLevel===null){state.lastLevel=level;save()}else if(level>state.lastLevel){const diff=Math.floor(level-state.lastLevel);state.mainPoints+=3*diff;state.otherPoints+=diff;state.lastLevel=level;save()}}}
-// Reset drzewek tylko po WYKRYCIU nowego odrodzenia względem zapamiętanego stanu.
-// Przy pierwszym uruchomieniu zapamiętujemy licznik bez kasowania istniejących pasywek.
-const currentRebirth=rebirthCount();
-if(state.seenRebirth===undefined||state.seenRebirth===null){state.seenRebirth=currentRebirth;save()}
-else if(currentRebirth>state.seenRebirth){
- state.main=null;state.mainPoints=0;state.otherPoints=0;state.lastLevel=level;
- state.levels=Object.fromEntries(ELEMENTS.map(e=>[e.id,Array(NODES.length).fill(0)]));
- state.seenRebirth=currentRebirth;save();
+function syncLevel(){
+ // Globalny system nalicza punkty na każdej stronie, także przed questem.
+ if(window.DevilsPoints?.sync)window.DevilsPoints.sync();
+ try{const fresh=JSON.parse(localStorage.getItem(key)||'null');if(fresh&&typeof fresh==='object'){
+  state={...state,...fresh};
+ }}catch(e){console.warn('Błąd odczytu punktów',e)}
 }
+// Odrodzenie i naliczanie punktów obsługuje wspólny interfejs.js.
 syncLevel();
 function available(i){if(alekQuest()?.status!=='completed'||!state.unlocked||!state.main||!elementUnlocked(current))return false;if(passiveInfo(i).master&&current!==state.main)return false;const incoming=EDGES.filter(edge=>edge[1]===i);return incoming.length===0||incoming.some(([from])=>state.levels[current][from]===5)}
 function isMain(){return current===state.main}

@@ -158,6 +158,41 @@ button:hover{background:#a3854d}
  background:linear-gradient(90deg,#6c258c,#b65ad1);
 }
 
+
+/* DEVILS: pasek HP z opóźnionym śladem obrażeń — bez efektów na kafelku. */
+.monster-card .bar{position:relative;overflow:visible;isolation:isolate}
+.monster-card .bar::before{content:"";position:absolute;inset:0;background:#101214;border-radius:2px;z-index:-1}
+.monster-card .monster-trail{
+ position:absolute;inset:0 auto 0 0;width:100%;
+ background:linear-gradient(90deg,#b75368,#ff9c9c);
+ transition:width .62s cubic-bezier(.2,.7,.25,1) .12s;
+ pointer-events:none;
+}
+.monster-card .monster-fill{
+ position:absolute;inset:0 auto 0 0;width:100%;
+ transition:width .23s cubic-bezier(.2,.75,.2,1);
+ will-change:width;
+}
+.monster-card .monster-fill.monster-hit{
+ background:linear-gradient(90deg,#8530a7,#d987ee);
+}
+.monster-damage{
+ position:absolute;left:50%;bottom:calc(100% + 5px);z-index:3;
+ transform:translate(-50%,5px);color:#ffd3d3;font-size:16px;
+ font-weight:bold;text-shadow:0 1px 3px #000,0 0 7px #8b2538;
+ pointer-events:none;white-space:nowrap;
+ animation:monster-damage-rise .75s ease-out forwards;
+}
+@keyframes monster-damage-rise{
+ 0%{opacity:0;transform:translate(-50%,6px)}
+ 18%{opacity:1} 75%{opacity:1}
+ 100%{opacity:0;transform:translate(-50%,-19px)}
+}
+@media(prefers-reduced-motion:reduce){
+ .monster-card .monster-fill,.monster-card .monster-trail{transition:none}
+ .monster-damage{animation:none;display:none}
+}
+
 /* EFEKTY */
 
 .effects{
@@ -223,6 +258,23 @@ button:hover{background:#a3854d}
 .monster-card .bar{
  margin-top:6px;
 }
+
+/* DEVILS: kompaktowe, kanciaste paski jak na nagraniu. */
+.bar, .monster-card .bar, .monster-card .bar::before,
+.bar-fill, .monster-card .monster-fill, .monster-card .monster-trail{
+ border-radius:0 !important;
+}
+.hero-bars .bar{
+ width:100%;
+ max-width:none;
+ height:8px;
+}
+.monster-card .bar{
+ width:100%;
+ max-width:none;
+ height:8px;
+}
+/* Ślad obrażeń i liczby trafień zachowują poprzednie animacje. */
 
 /* DZIENNIK */
 
@@ -296,6 +348,14 @@ button:hover{background:#a3854d}
  font-size:13px;
 }
 
+/* Ikony łupów i opis po najechaniu / ustawieniu fokusu */
+.loot-item{position:relative;display:inline-flex;align-items:center;justify-content:center;width:58px;height:58px;padding:5px;font-size:29px;cursor:default}
+.loot-item .loot-count{position:absolute;right:3px;bottom:2px;font-size:11px;color:#f2d99d;background:#151819;border-radius:3px;padding:1px 3px}
+.loot-item .loot-tooltip{display:none;position:absolute;z-index:200;bottom:calc(100% + 8px);left:0;min-width:195px;max-width:280px;width:max-content;white-space:normal;text-align:left;background:#101315;border:1px solid #c4a15b;color:#e6dfd0;padding:11px;border-radius:6px;box-shadow:0 6px 20px #000b;font-size:12px;line-height:1.5;pointer-events:none}
+.loot-item:hover .loot-tooltip,.loot-item:focus-visible .loot-tooltip{display:block}
+.loot-item.sellable{cursor:pointer}
+.loot-item.sell-selected{border:2px solid #54d675;background:#154a2a;box-shadow:0 0 10px #2bd56b66}
+.loot-hint{margin:10px 0;color:#bdb4a4;font-size:12px}
 .battle-summary{
  margin-top:15px;
  color:#c9bea8;
@@ -442,6 +502,7 @@ button:hover{background:#a3854d}
      </span>
     </div>
 
+    <p class="loot-hint" id="lootHint">Najpierw zakończ polowanie, aby wybrać przedmioty do sprzedaży.</p>
     <div class="battle-summary" id="battleSummary">
      Pokonane potwory: 0 | EXP: 0 | Złoto: 0
     </div>
@@ -450,8 +511,8 @@ button:hover{background:#a3854d}
 
    <div class="battle-footer">
 
-    <button class="end-button" onclick="endBattle()">
-     Zakończ walkę i zbierz łupy
+    <button class="end-button" id="finishButton" onclick="endBattle()">
+     Zakończ walkę
     </button>
 
    </div>
@@ -516,21 +577,59 @@ selectedMonsters=selectedMonsters.slice(0,3);
  podłączymy rzeczywiste statystyki.
 */
 
+/* DEVILS: prawdziwe dane aktywnej postaci i zapis nagród. */
+const SAVE_KEY='idleSlots_'+user;
+const ACTIVE_SLOT=Number(slotValue);
+// Wspólny klucz z panelem postaci; odczyt przy każdej nagrodzie.
+const EXP_LOCK_KEY='devilsExpLock_'+user+'_'+slotValue;
+function isExpLocked(){return localStorage.getItem(EXP_LOCK_KEY)==='1';}
+function numberOf(obj,keys,fallback=0){for(const key of keys){if(obj?.[key]!=null&&obj[key]!==''&&Number.isFinite(Number(obj[key])))return Number(obj[key]);}return fallback;}
+function stat(name){return numberOf(savedHero?.stats,[name],0)}
 const hero={
- name:savedHero?.name ||
-      savedHero?.characterClass ||
-      "Bohater",
-
- maxHp:500,
- hp:500,
-
- maxMp:200,
- mp:200,
-
- attack:55,
- defense:8
+ name:savedHero?.name||savedHero?.characterClass||'Bohater',
+ maxHp:Math.max(100,numberOf(savedHero,['maxHp','maxHP','hpMax','maxHealth'],100+stat('Wytrzymałość')*10)),
+ hp:0,
+ maxMp:Math.max(20,numberOf(savedHero,['maxMana','maxMP','manaMax','mpMax'],50+stat('Inteligencja')*5)),
+ mp:0,
+ attack:Math.max(5,Math.floor(10+stat('Siła')*2+numberOf(savedHero,['attack','atak'],0))),
+ defense:Math.max(0,Math.floor(stat('Wytrzymałość')/2+numberOf(savedHero,['defense','obrona'],0)))
 };
-
+hero.hp=Math.min(hero.maxHp,Math.max(1,numberOf(savedHero,['hp','health','currentHp','currentHP'],hero.maxHp)));
+hero.mp=Math.min(hero.maxMp,Math.max(0,numberOf(savedHero,['mana','mp','currentMana','currentMP'],hero.maxMp)));
+const EXP_FIELDS=['exp','xp','experience','doswiadczenie'];
+const EXP_TARGET_FIELDS=['expToNext','xpToNext','nextLevelExp','expRequired','xpRequired','expNext','nextExp','expNeeded','xpNeeded'];
+function fieldOf(obj,keys,defaultKey){return keys.find(k=>obj?.[k]!==undefined&&obj?.[k]!==null)||defaultKey}
+function expNeeded(level){return Math.max(1,Math.floor(100*level));}
+function grantExp(character,amount){
+ const expField=fieldOf(character,EXP_FIELDS,'exp');
+ const levelField=fieldOf(character,['level','lvl','poziom'],'level');
+ const targetField=fieldOf(character,EXP_TARGET_FIELDS,'expToNext');
+ let level=Math.max(1,Math.floor(numberOf(character,[levelField],1)));
+ let xp=Math.max(0,numberOf(character,[expField],0))+amount;
+ let target=numberOf(character,[targetField],expNeeded(level));
+ if(target<=0)target=expNeeded(level);
+ let gained=0;
+ while(xp>=target&&gained<1000){xp-=target;level++;gained++;target=expNeeded(level);}
+ character[expField]=xp;character[levelField]=level;character[targetField]=target;
+ return gained;
+}
+function commitRewards(exp,gold){
+ if(!user||!Number.isInteger(ACTIVE_SLOT)||!savedHero)return {ok:false,reason:'Nie znaleziono aktywnej postaci.'};
+ try{
+  const slots=JSON.parse(localStorage.getItem(SAVE_KEY)||'[]');
+  const entry=slots[ACTIVE_SLOT];if(!entry?.hero)return {ok:false,reason:'Postać nie istnieje w zapisie.'};
+  if(!Array.isArray(entry.inventory))entry.inventory=[];
+  // Blokada jest odczytywana przy każdej nagrodzie, nie tylko na starcie walki.
+  const awardedExp=isExpLocked()?0:exp;
+  const leveled=grantExp(entry.hero,awardedExp);
+  const goldField=fieldOf(entry.hero,['gold','zloto','złoto'],'gold');
+  entry.hero[goldField]=numberOf(entry.hero,[goldField],0)+gold;
+  localStorage.setItem(SAVE_KEY,JSON.stringify(slots));
+  savedHero=entry.hero;
+  window.DevilsPoints?.sync?.();
+  return {ok:true,leveled,awardedExp,expLocked:awardedExp===0&&exp>0&&isExpLocked()};
+ }catch(e){console.error('Błąd zapisu nagród',e);return {ok:false,reason:'Nie udało się zapisać nagród.'}}
+}
 let monsters=selectedMonsters.map((monster,index)=>({
 
  ...monster,
@@ -551,13 +650,42 @@ let monsters=selectedMonsters.map((monster,index)=>({
 
 let battleRunning=false;
 let battleTimer=null;
+let respawnTimer=null;
+const GROUP_RESPAWN_MS=300;
 let round=0;
 
 let totalExp=0;
 let totalGold=0;
 let defeatedMonsters=0;
 
-const collectedLoot={};
+// Niewydane łupy trzymamy oddzielnie, aby gracz mógł zdecydować co sprzedać.
+// sessionStorage chroni łupy również po przypadkowym odświeżeniu strony.
+const PENDING_KEY='devilsPendingLoot_'+user+'_'+slotValue;
+let pendingLoot=[];
+try{const previous=JSON.parse(sessionStorage.getItem(PENDING_KEY)||'[]');if(Array.isArray(previous))pendingLoot=previous.filter(x=>x&&typeof x==='object');}catch{}
+let summaryMode=false;
+let rewardsFinalized=false;
+function storePending(){sessionStorage.setItem(PENDING_KEY,JSON.stringify(pendingLoot));}
+function salePrice(item){const explicit=Number(item.sellPrice??item.sellValue??item.vendorPrice??item.price);return Number.isFinite(explicit)&&explicit>0?Math.floor(explicit):Math.max(1,Math.floor((Number(item.level)||1)*5));}
+function finalizeLoot(){
+ if(rewardsFinalized)return true;
+ try{
+  const slots=JSON.parse(localStorage.getItem(SAVE_KEY)||'[]');const entry=slots[ACTIVE_SLOT];if(!entry?.hero)throw Error('Brak aktywnej postaci');
+  if(!Array.isArray(entry.inventory))entry.inventory=[];
+  const keep=pendingLoot.filter(x=>!x.sell),sold=pendingLoot.filter(x=>x.sell);
+  const free=[];for(let i=0;i<400;i++)if(!entry.inventory[i])free.push(i);
+  if(free.length<keep.length){addLog('Brak miejsca w ekwipunku: potrzeba '+keep.length+', wolne '+free.length+'. Zaznacz więcej łupów do sprzedaży.','system');return false;}
+  keep.forEach((item,i)=>{const {sell,...data}=item;entry.inventory[free[i]]=data;});
+  const gold=sold.reduce((sum,item)=>sum+salePrice(item),0);
+  const goldField=fieldOf(entry.hero,['gold','zloto','złoto'],'gold');
+  entry.hero[goldField]=numberOf(entry.hero,[goldField],0)+gold;
+  localStorage.setItem(SAVE_KEY,JSON.stringify(slots));
+  pendingLoot=[];storePending();rewardsFinalized=true;
+  addLog('Do ekwipunku: '+keep.length+' szt. Sprzedano: '+sold.length+' szt. +'+gold+' złota.','reward');
+  return true;
+ }catch(error){console.error(error);addLog('Nie udało się zapisać łupów. Spróbuj ponownie.','system');return false;}
+}
+
 
 /* =====================================
    BOCZNE MENU
@@ -639,77 +767,67 @@ function renderHero(){
 ===================================== */
 
 
+const monsterViews=new Map();
+function showMonsterDamage(monster,damage){
+ const view=monsterViews.get(monster.battleId);
+ if(!view)return;
+ // Każde uderzenie dostaje własną krótką liczbę, tylko nad paskiem HP.
+ const number=document.createElement('span');
+ number.className='monster-damage';
+ number.textContent='-'+damage;
+ view.bar.appendChild(number);
+ number.addEventListener('animationend',()=>number.remove(),{once:true});
+ // Fallback dla przeglądarek bez animacji lub przerwanej animacji.
+ setTimeout(()=>number.remove(),900);
+}
 function renderMonsters(){
-
- const grid=document.getElementById("monstersGrid");
-
- grid.innerHTML="";
-
- // Liczba kolumn zależy od liczby potworów.
- grid.style.setProperty(
-  "--monster-count",
-  Math.max(1,monsters.length)
- );
-
+ const grid=document.getElementById('monstersGrid');
+ grid.style.setProperty('--monster-count',Math.max(1,monsters.length));
  monsters.forEach(monster=>{
-
-  const card=document.createElement("div");
-  card.className="monster-card";
-
-  const name=document.createElement("div");
-  name.className="monster-name";
-  name.textContent=monster.name;
-
-  const level=document.createElement("div");
-  level.className="monster-level";
-  level.textContent="Poziom "+monster.level;
-
-  const hpText=document.createElement("div");
-  hpText.className="bar-label";
-
-  const bar=document.createElement("div");
-  bar.className="bar";
-
-  const fill=document.createElement("div");
-  fill.className="bar-fill monster-fill";
-
-  const effects=document.createElement("div");
-  effects.className="effects";
-
-  createEmptyEffects(effects);
-
-  if(monster.hp<=0){
-
-   hpText.textContent="Pokonany — odradzanie...";
-   fill.style.width="0%";
-
-  }else{
-
-   hpText.textContent=
-    "HP "+Math.ceil(monster.hp)+"/"+monster.maxHp;
-
-   fill.style.width=
-    (monster.hp/monster.maxHp*100)+"%";
+  let view=monsterViews.get(monster.battleId);
+  if(!view){
+   const card=document.createElement('div');card.className='monster-card';
+   const name=document.createElement('div');name.className='monster-name';name.textContent=monster.name;
+   const level=document.createElement('div');level.className='monster-level';level.textContent='Poziom '+monster.level;
+   const hpText=document.createElement('div');hpText.className='bar-label';
+   const bar=document.createElement('div');bar.className='bar';
+   const trail=document.createElement('div');trail.className='monster-trail';
+   const fill=document.createElement('div');fill.className='bar-fill monster-fill';
+   bar.append(trail,fill);
+   const effects=document.createElement('div');effects.className='effects';createEmptyEffects(effects);
+   card.append(name,level,hpText,bar,effects);grid.appendChild(card);
+   view={card,bar,hpText,fill,trail,lastHp:monster.hp,hitTimer:null};
+   monsterViews.set(monster.battleId,view);
   }
-
-  bar.appendChild(fill);
-
-  card.append(
-   name,
-   level,
-   hpText,
-   bar,
-   effects
-  );
-
-  grid.appendChild(card);
+  const percent=Math.max(0,Math.min(100,monster.hp/monster.maxHp*100))+'%';
+  if(monster.hp<view.lastHp){
+   view.fill.classList.add('monster-hit');
+   clearTimeout(view.hitTimer);
+   view.hitTimer=setTimeout(()=>view.fill.classList.remove('monster-hit'),190);
+  }
+  if(monster.hp>view.lastHp){
+   // Cała grupa respawnuje jednocześnie: bez rozciągania paska od zera.
+   clearTimeout(view.hitTimer);
+   view.fill.classList.remove('monster-hit');
+   view.fill.style.transition='none';
+   view.trail.style.transition='none';
+   view.fill.style.width=percent;
+   view.trail.style.width=percent;
+   // Odblokowanie przejścia dopiero w następnej klatce.
+   requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    view.fill.style.transition='';
+    view.trail.style.transition='';
+   }));
+  }else{
+   view.fill.style.width=percent;
+   view.trail.style.width=percent;
+  }
+  view.hpText.textContent=monster.hp>0
+   ?'HP '+Math.ceil(monster.hp)+'/'+monster.maxHp
+   :(respawnTimer!==null?'Odradzanie drużyny...':'Pokonany');
+  view.lastHp=monster.hp;
  });
 }
-
-
-/* =====================================
-   DZIENNIK WALKI
-===================================== */
 
 function addLog(message,type="system"){
 
@@ -746,61 +864,39 @@ function toggleLog(){
    ŁUPY — DEMONSTRACJA
 ===================================== */
 
-function addLoot(monster){
-
- if(!Array.isArray(monster.drops)){
-  return;
- }
-
- // Tymczasowa szansa 30% na jeden
- // przedmiot z przykładowej listy.
-
- if(Math.random()>0.3){
-  return;
- }
-
- const possibleDrops=monster.drops.filter(
-  item=>item!=="Złoto"
- );
-
- if(possibleDrops.length===0){
-  return;
- }
-
- const item=possibleDrops[
-  Math.floor(Math.random()*possibleDrops.length)
- ];
-
- collectedLoot[item]=(collectedLoot[item]||0)+1;
-
- addLog("Zdobyto przedmiot: "+item,"reward");
-
- renderLoot();
+function rollLoot(monster){
+ if(!Array.isArray(monster.drops)||Math.random()>=0.3)return null;
+ const options=monster.drops.filter(item=>item&&item!=='Złoto');
+ if(!options.length)return null;
+ const chosen=options[Math.floor(Math.random()*options.length)];
+ if(typeof chosen==='string')return {name:chosen,icon:'🎒',type:'loot',source:monster.name};
+ if(chosen&&typeof chosen==='object')return {...chosen,name:chosen.name||'Nieznany przedmiot',icon:chosen.icon||'🎒'};
+ return null;
 }
 
 function renderLoot(){
-
- const container=document.getElementById("lootItems");
-
- container.innerHTML="";
-
- const entries=Object.entries(collectedLoot);
-
- if(entries.length===0){
-
-  container.textContent="Na razie brak łupów.";
-  return;
- }
-
- entries.forEach(([name,count])=>{
-
-  const item=document.createElement("div");
-  item.className="loot-item";
-
-  item.textContent="🎒 "+name+" ×"+count;
-
-  container.appendChild(item);
+ const container=document.getElementById('lootItems');container.innerHTML='';
+ if(!pendingLoot.length){container.textContent='Na razie brak łupów.';return;}
+ pendingLoot.forEach((item,index)=>{
+  const tile=document.createElement(summaryMode?'button':'div');
+  if(summaryMode)tile.type='button';
+  tile.className='loot-item'+(summaryMode?' sellable':'')+(item.sell?' sell-selected':'');
+  tile.tabIndex=0;
+  const icon=document.createElement('span');icon.textContent=item.icon||'🎒';tile.appendChild(icon);
+  const tip=document.createElement('span');tip.className='loot-tooltip';
+  const lines=[item.name||'Przedmiot',item.description||item.desc||'Łup z potwora: '+(item.source||'nieznany'), 'Cena sprzedaży: '+salePrice(item)+' złota'];
+  tip.textContent=lines.join(' • ');tile.appendChild(tip);
+  tile.setAttribute('aria-label',lines.join('. '));
+  if(summaryMode){tile.setAttribute('aria-pressed',String(!!item.sell));tile.onclick=()=>{item.sell=!item.sell;storePending();renderLoot();updateFinishButton();};}
+  container.appendChild(tile);
  });
+}
+function updateFinishButton(){
+ const button=document.getElementById('finishButton');
+ if(!summaryMode){button.textContent='Zakończ walkę';return;}
+ const count=pendingLoot.filter(x=>x.sell).length;
+ button.textContent=count?'Zakończ walkę i sprzedaj łupy ('+count+')':'Zakończ walkę i zachowaj łupy';
+ document.getElementById('lootHint').textContent='Kliknij ikony przedmiotów do sprzedaży (zaznaczą się na zielono). Niezaznaczone trafią do ekwipunku.';
 }
 
 function renderSummary(){
@@ -809,7 +905,7 @@ function renderSummary(){
   "Pokonane potwory: "+defeatedMonsters+
   " | EXP: "+totalExp+
   " | Złoto: "+totalGold+
-  " (wyniki testowe — jeszcze niezapisane)";
+  " (zapisane na postaci)";
 }
 
 /* =====================================
@@ -817,37 +913,23 @@ function renderSummary(){
 ===================================== */
 
 function defeatMonster(monster){
-
+ const gold=Math.max(1,Math.floor((Number(monster.level)||1)*3));
+ const exp=Math.max(0,Number(monster.exp)||0);
+ const item=rollLoot(monster);
+ const result=commitRewards(exp,gold);
+ if(!result.ok){
+  addLog('Nagrody nie zostały zapisane: '+result.reason,'system');
+  stopBattle();
+  return;
+ }
  defeatedMonsters++;
-
- totalExp+=monster.exp;
-
- const gold=Math.max(
-  1,
-  Math.floor(monster.level*3)
- );
-
+ totalExp+=result.awardedExp;
  totalGold+=gold;
-
- addLog(
-  "Pokonano "+monster.name+
-  "! +"+monster.exp+" EXP, +"+gold+" złota.",
-  "reward"
- );
-
- addLoot(monster);
-
- // Potwór odradza się po 3 sekundach.
-
- monster.respawnTime=Date.now()+3000;
-
+ addLog('Pokonano '+monster.name+'! '+(result.expLocked?'EXP zablokowany (0)':'+'+result.awardedExp+' EXP')+', +'+gold+' złota.','reward');
+ if(item){pendingLoot.push({...item,sell:false});storePending();addLog('Zdobyto przedmiot: '+item.name,'reward');renderLoot();}
+ if(result.leveled)addLog('AWANS! Zdobyto '+result.leveled+' poziom(y). Punkty pasywne zostaną naliczone.','reward');
  renderSummary();
 }
-
-/* =====================================
-   JEDNA RUNDA WALKI
-===================================== */
-
 function battleRound(){
 
  if(!battleRunning){
@@ -861,48 +943,19 @@ function battleRound(){
 
  round++;
 
- // Odradzanie pokonanych potworów.
+ // Pokonane moby czekają na pozostałe; cała grupa wraca jednocześnie.
+ if(monsters.every(monster=>monster.hp<=0))return;
 
- monsters.forEach(monster=>{
-
-  if(
-   monster.hp<=0 &&
-   Date.now()>=monster.respawnTime
-  ){
-
-   monster.hp=monster.maxHp;
-
-   addLog(
-    monster.name+" pojawia się ponownie.",
-    "system"
-   );
-  }
- });
-
- // Bohater atakuje pierwszego żywego potwora.
-
- const target=monsters.find(
-  monster=>monster.hp>0
- );
-
- if(target){
-
-  const damage=Math.max(
-   1,
-   hero.attack+Math.floor(Math.random()*11)-5
-  );
-
+ // Jeden atak na KAŻDEGO wybranego, żywego przeciwnika w tej samej rundzie.
+ // Liczba celów wynika z wyboru na mapie (maksymalnie 3).
+ const targets=monsters.filter(monster=>monster.hp>0);
+ for(const target of targets){
+  if(!battleRunning)break;
+  const damage=Math.max(1,hero.attack+Math.floor(Math.random()*11)-5);
   target.hp=Math.max(0,target.hp-damage);
-
-  addLog(
-   hero.name+" atakuje "+target.name+
-   " za "+damage+" obrażeń.",
-   "player"
-  );
-
-  if(target.hp<=0){
-   defeatMonster(target);
-  }
+  showMonsterDamage(target,damage);
+  addLog(hero.name+" atakuje "+target.name+" za "+damage+" obrażeń.","player");
+  if(target.hp<=0)defeatMonster(target);
  }
 
  // Wszystkie żywe potwory atakują bohatera.
@@ -931,6 +984,19 @@ function battleRound(){
  renderHero();
  renderMonsters();
 
+ // Respawn po 0,3 s od zabicia OSTATNIEGO potwora, bez oczekiwania na kolejną rundę.
+ if(battleRunning && hero.hp>0 && monsters.length &&
+    monsters.every(monster=>monster.hp<=0) && respawnTimer===null){
+  respawnTimer=setTimeout(()=>{
+   respawnTimer=null;
+   if(!battleRunning)return;
+   monsters.forEach(monster=>{monster.hp=monster.maxHp;});
+   addLog('Wszystkie potwory odrodziły się jednocześnie.','system');
+   renderMonsters();
+  },GROUP_RESPAWN_MS);
+  renderMonsters();
+ }
+
  if(hero.hp<=0){
 
   addLog(
@@ -948,6 +1014,7 @@ function battleRound(){
 
 function startBattle(){
 
+ if(!savedHero){addLog("Nie znaleziono postaci. Walka nie może przyznawać nagród.","system");return;}
  if(monsters.length===0){
 
   addLog(
@@ -976,6 +1043,7 @@ function startBattle(){
 function stopBattle(){
 
  battleRunning=false;
+ if(respawnTimer!==null){clearTimeout(respawnTimer);respawnTimer=null;}
 
  if(battleTimer!==null){
 
@@ -989,41 +1057,28 @@ function stopBattle(){
 ===================================== */
 
 function leaveBattle(page){
-
  stopBattle();
-
- if(page==="postacie.html"){
-  sessionStorage.removeItem("idleActiveSlot");
- }
-
- sessionStorage.removeItem("idleSelectedMonsters");
-
+ // Przejście przez menu nie może powodować utraty zdobytych łupów.
+ if(!finalizeLoot()){summaryMode=true;renderLoot();updateFinishButton();return;}
+ if(page==='postacie.html')sessionStorage.removeItem('idleActiveSlot');
+ sessionStorage.removeItem('idleSelectedMonsters');
  window.location.href=page;
 }
-
 function endBattle(){
-
  stopBattle();
-
- alert(
-  "Polowanie zakończone!\n\n"+
-  "Pokonane potwory: "+defeatedMonsters+"\n"+
-  "Testowy EXP: "+totalExp+"\n"+
-  "Testowe złoto: "+totalGold+"\n\n"+
-  "To wersja demonstracyjna. "+
-  "Nagrody nie zostały jeszcze dodane do zapisu postaci."
- );
-
- leaveBattle("mapa.html");
+ if(!summaryMode){
+  summaryMode=true;
+  addLog('Polowanie zakończone. Wybierz łupy do sprzedaży.','system');
+  renderLoot();updateFinishButton();return;
+ }
+ leaveBattle('mapa.html');
 }
-
-/* =====================================
-   URUCHOMIENIE EKRANU
-===================================== */
 
 renderHero();
 renderMonsters();
 renderSummary();
+renderLoot();
+updateFinishButton();
 
 createEmptyEffects(
  document.getElementById("heroEffects")

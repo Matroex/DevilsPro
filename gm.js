@@ -386,6 +386,197 @@
     saveChanges();
   }
 
+  // Katalog zgodny z przedmioty.js V15. Nie wymaga ładowania katalogu na stronie GM.
+  const gmItems = [
+    ['runa_berserkera_0', 'Runa Berserkera +0', 'Runa Berserkera +0', '🔮', 'weapon_rune', 'material', 'Rzadki', 'itemy/runa_berserkera.png'],
+    ['runa_berserkera_1', 'Runa Berserkera +1', 'Runa Berserkera +1', '🔮', 'weapon_rune', 'material', 'Rzadki', 'itemy/runa_berserkera.png'],
+    ['runa_berserkera_2', 'Runa Berserkera +2', 'Runa Berserkera +2', '🔮', 'weapon_rune', 'material', 'Rzadki', 'itemy/runa_berserkera.png'],
+    ['runa_berserkera_3', 'Runa Berserkera +3', 'Runa Berserkera +3', '🔮', 'weapon_rune', 'material', 'Rzadki', 'itemy/runa_berserkera.png'],
+    ['runa_berserkera_4', 'Runa Berserkera +4', 'Runa Berserkera +4', '🔮', 'weapon_rune', 'material', 'Rzadki', 'itemy/runa_berserkera.png'],
+    ['runa_berserkera_5', 'Runa Berserkera +5', 'Runa Berserkera +5', '🔮', 'weapon_rune', 'material', 'Rzadki', 'itemy/runa_berserkera.png'],
+    ['runa_nieskonczonosci_0', 'Runa Nieskończoności +0', 'Runa Nieskończoności +0', '🔮', 'weapon_rune', 'material', 'Rzadki', 'itemy/runa_nieskonczonosci.png'],
+    ['runa_nieskonczonosci_1', 'Runa Nieskończoności +1', 'Runa Nieskończoności +1', '🔮', 'weapon_rune', 'material', 'Rzadki', 'itemy/runa_nieskonczonosci.png'],
+    ['runa_nieskonczonosci_2', 'Runa Nieskończoności +2', 'Runa Nieskończoności +2', '🔮', 'weapon_rune', 'material', 'Rzadki', 'itemy/runa_nieskonczonosci.png'],
+    ['runa_nieskonczonosci_3', 'Runa Nieskończoności +3', 'Runa Nieskończoności +3', '🔮', 'weapon_rune', 'material', 'Rzadki', 'itemy/runa_nieskonczonosci.png'],
+    ['runa_nieskonczonosci_4', 'Runa Nieskończoności +4', 'Runa Nieskończoności +4', '🔮', 'weapon_rune', 'material', 'Rzadki', 'itemy/runa_nieskonczonosci.png'],
+    ['runa_nieskonczonosci_5', 'Runa Nieskończoności +5', 'Runa Nieskończoności +5', '🔮', 'weapon_rune', 'material', 'Rzadki', 'itemy/runa_nieskonczonosci.png'],
+    ['dodanie_bonusu_1_4', 'Dodanie 1–4 bonusu', 'Dodanie 1–4 bonusu', '🔹', 'bonus_stone', 'material', 'Rzadki', 'itemy/dodanie_1_4.png'],
+    ['dodanie_bonusu_6_7', 'Dodanie 6–7 bonusu', 'Dodanie 6–7 bonusu', '🔸', 'bonus_stone', 'material', 'Epicki', 'itemy/dodanie_6_7.png'],
+    ['prezent_startowy', '🎁 Prezent startowy', 'Prezent startowy', '🎁', 'quality_gift', 'chest', 'Pospolity', 'itemy/prezent.png'],
+    ['ulepszacz_magiczny', '✨ Magiczny ulepszacz', 'Magiczny ulepszacz', '✨', 'magic_upgrader', 'material', 'Epicki', 'itemy/magiczny.png'],
+    ['ulepszacz_jakosci_zwykly', '🧪 Jakość — Zwykły', 'Ulepszacz jakości — Zwykły', '🧪', 'quality_upgrader', 'material', 'Zwykły', 'itemy/zwykly.png', 'Zwykły'],
+    ['ulepszacz_jakosci_rzadki', '🧪 Jakość — Rzadki', 'Ulepszacz jakości — Rzadki', '🧪', 'quality_upgrader', 'material', 'Rzadki', 'itemy/rzadki.png', 'Rzadki'],
+    ['ulepszacz_jakosci_epicki', '🧪 Jakość — Epicki', 'Ulepszacz jakości — Epicki', '🧪', 'quality_upgrader', 'material', 'Epicki', 'itemy/epicki.png', 'Epicki'],
+    ['ulepszacz_jakosci_legendarny', '🧪 Jakość — Legendarny', 'Ulepszacz jakości — Legendarny', '🧪', 'quality_upgrader', 'material', 'Legendarny', 'itemy/legendarny.png', 'Legendarny'],
+    ['skrzynka_startowa', '📦 Skrzynka startowa', 'Skrzynka startowa', '🎁', 'starter_chest', 'chest', 'Pospolity'],
+    ['zbroja_lowcy', '🧥 Zbroja Łowcy', 'Zbroja Łowcy', '🧥', '', 'armor', 'Pospolity', '', '', 'armor'],
+    ['ostry_miecz', '⚔️ Ostry Miecz', 'Ostry Miecz', '⚔️', '', 'weapon', 'Pospolity', '', '', 'weapon'],
+    ['buty_lowcy', '🥾 Buty Łowcy', 'Buty Łowcy', '🥾', '', 'boots', 'Pospolity', '', '', 'boots'],
+    ['kaptur_lowcy', '🪖 Kaptur Łowcy', 'Kaptur Łowcy', '🪖', '', 'helmet', 'Pospolity', '', '', 'helmet'],
+    ['tarcza_ze_skory', '🛡️ Tarcza ze Skóry', 'Tarcza ze Skóry', '🛡️', '', 'shield', 'Pospolity', '', '', 'shield']
+  ];
+
+  // Lista GM: katalog przedmiotów + starsze pozycje zachowane dla kompatybilności.
+  function getGMItems() {
+    const merged = new Map(gmItems.map(entry => [entry[0], entry]));
+    const catalog = window.DevilsItems?.catalog || {};
+    for (const item of Object.values(catalog)) {
+      if (!item || !item.id) continue;
+      const entry = [item.id, (item.icon ? item.icon + ' ' : '') + item.name,
+        item.name, item.icon || '📦', item.type || '', item.category || 'misc',
+        item.rarity || 'Pospolity', item.image || '', item.targetRarity || '', item.slot || ''];
+      merged.set(item.id, entry);
+    }
+    return [...merged.values()];
+  }
+
+  function gmMakeItem(entry) {
+    const [id, , name, icon, type, category, rarity, image, targetRarity, slot] = entry;
+    const fromCatalog = window.DevilsItems?.create?.(id);
+    if (fromCatalog) return fromCatalog;
+    const item = { id, name, icon, category, rarity, upgradeable: !!slot };
+    if (type) item.type = type;
+    if (image) item.image = image;
+    if (targetRarity) item.targetRarity = targetRarity;
+    if (slot) { item.slot = slot; item.requiredLevel = 1; item.maxUpgrade = 9; item.upgrade = 0; }
+    if (type === 'weapon_rune') { item.runeKind = id.includes('berserkera') ? 'berserkera' : 'nieskonczonosci'; item.runeLevel = Number(id.split('_').pop()); }
+    if (type === 'bonus_stone') item.bonusTier = id.endsWith('6_7') ? 'special' : 'normal';
+    if (id === 'zbroja_lowcy') item.requiredClass = 'Łowca';
+    return item;
+  }
+
+  // Inwentarz: 6 zakładek x 60 miejsc, po 5 kolumn na rząd.
+  // Wielopolowe przedmioty zapisane są tylko w polu początkowym.
+  function gmItemHeight(item) {
+    const name = String(item.name || '').toLowerCase();
+    const type = String(item.type || '').toLowerCase();
+    if (/wielki miecz|miecz dwuręcz|miecz dwurecz|greatsword|two.hand|2h sword/.test(name + ' ' + type)) return 3;
+    if (/sztylet|dagger/.test(name + ' ' + type)) return 1;
+    if (/zbroj|pancerz|miecz|łuk|luk|kusz|kostur|staff|staf/.test(name + ' ' + type)) return 2;
+    if (item.slot === 'armor') return 2;
+    if (item.slot === 'weapon' && !/sztylet/.test(name)) return 2;
+    return 1;
+  }
+
+  function gmFindFree(inventory, item) {
+    const occupied = new Set();
+    for (let i = 0; i < 360; i++) {
+      const existing = inventory[i];
+      if (!existing || typeof existing !== 'object') continue;
+      for (let r = 0; r < gmItemHeight(existing); r++) {
+        const cell = i + r * 5;
+        if (cell < 360 && Math.floor(cell / 60) === Math.floor(i / 60)) occupied.add(cell);
+      }
+    }
+    for (let i = 0; i < 360; i++) {
+      const height = gmItemHeight(item);
+      let fits = true;
+      for (let r = 0; r < height; r++) {
+        const cell = i + r * 5;
+        if (cell >= 360 || Math.floor(cell / 60) !== Math.floor(i / 60) || occupied.has(cell)) { fits = false; break; }
+      }
+      if (fits) return i;
+    }
+    return -1;
+  }
+
+  const GM_STACK_LIMIT = 4000;
+  function gmStackKey(item) {
+    if (!item || typeof item !== 'object') return null;
+    const resolved = window.DevilsItems?.resolve?.(item) || item;
+    if (resolved.slot || resolved.upgradeLevel || resolved.upgrade || resolved.plus ||
+        resolved.runes || resolved.rune || resolved.bonuses || resolved.extraBonuses || resolved.stats) return null;
+    const category = String(resolved.category || '');
+    const type = String(resolved.type || '');
+    if (category !== 'material' && category !== 'chest' &&
+        !['magic_upgrader','quality_upgrader','weapon_rune','bonus_stone','quality_gift','starter_chest'].includes(type)) return null;
+    return JSON.stringify({id:resolved.id || resolved.catalogId || resolved.itemId || '',
+      name:resolved.name || '',type,rarity:resolved.rarity || '',
+      targetRarity:resolved.targetRarity || '',runeKind:resolved.runeKind || '',
+      runeLevel:resolved.runeLevel ?? '',bonusTier:resolved.bonusTier || ''});
+  }
+  function gmStackCount(item) {
+    return Math.max(1, Math.floor(Number(item?.quantity ?? item?.count ?? 1) || 1));
+  }
+  function gmGiveItems(itemId, count) {
+    const entry = getGMItems().find(e => e[0] === itemId);
+    if (!entry) { notify('Wybierz przedmiot.', true); return; }
+    if (!Number.isSafeInteger(count) || count < 1 || count > GM_STACK_LIMIT) {
+      notify('Liczba przedmiotów musi wynosić od 1 do 4000.', true); return;
+    }
+    const data = getHeroData();
+    if (!data) { notify('Nie wybrano aktywnej postaci.', true); return; }
+    const slot = data.slots[activeSlot];
+    const draft = Array.isArray(slot.inventory) ? slot.inventory.slice(0, 360) : [];
+    const prototype = gmMakeItem(entry);
+    const key = gmStackKey(prototype);
+    let remaining = count;
+    if (key) {
+      // Zapełnij istniejące stosy, bez modyfikowania zapisu przed końcem operacji.
+      for (let i = 0; i < draft.length && remaining > 0; i++) {
+        if (gmStackKey(draft[i]) !== key) continue;
+        const before = gmStackCount(draft[i]);
+        const added = Math.min(remaining, Math.max(0, GM_STACK_LIMIT - before));
+        if (!added) continue;
+        draft[i] = {...draft[i], quantity: before + added};
+        delete draft[i].count;
+        remaining -= added;
+      }
+      while (remaining > 0) {
+        const part = {...prototype, quantity: Math.min(GM_STACK_LIMIT, remaining)};
+        const position = gmFindFree(draft, part);
+        if (position < 0) break;
+        draft[position] = part;
+        remaining -= part.quantity;
+      }
+    } else {
+      // Przedmioty z indywidualnymi statystykami nadal zajmują osobne miejsca.
+      while (remaining > 0) {
+        const position = gmFindFree(draft, prototype);
+        if (position < 0) break;
+        draft[position] = gmMakeItem(entry);
+        remaining--;
+      }
+    }
+    const added = count - remaining;
+    if (!added) { notify('Brak wolnego miejsca w inwentarzu.', true); return; }
+    slot.inventory = draft;
+    try {
+      localStorage.setItem(saveKey, JSON.stringify(data.slots));
+      notify('Dodano: ' + entry[2] + ' × ' + added +
+        (remaining ? ' (brak miejsca na pozostałe)' : '') + '. Otwórz ekwipunek lub odśwież stronę.');
+    } catch (error) {
+      notify('Nie udało się zapisać inwentarza: ' + error.message, true);
+    }
+  }
+
+  function buildItemSection() {
+    const section = makeSection('🎁 Przedmioty i ulepszacze');
+    const grid = makeGrid(section);
+    const selectWrap = document.createElement('div');
+    selectWrap.className = 'gm-field';
+    const label = document.createElement('label');
+    label.textContent = 'Przedmiot';
+    const select = document.createElement('select');
+    select.style.cssText = 'width:100%;min-width:180px;padding:9px;background:#211d19;color:#efd39a;border:1px solid #8c723a';
+    for (const entry of getGMItems()) {
+      const option = document.createElement('option');
+      option.value = entry[0]; option.textContent = entry[1]; select.appendChild(option);
+    }
+    selectWrap.append(label, select);
+    grid.appendChild(selectWrap);
+    const amount = makeField(grid, 'item-count', 'Liczba sztuk (1–4000)', 1);
+    amount.max = '4000'; amount.value = '1';
+    const actions = document.createElement('div');
+    actions.className = 'gm-actions';
+    actions.appendChild(makeButton('➕ Dodaj do inwentarza', () => gmGiveItems(select.value, Number(amount.value)), 'gm-primary'));
+    section.appendChild(actions);
+    const hint = document.createElement('p');
+    hint.className = 'gm-note';
+    hint.textContent = 'Lista pobierana automatycznie z przedmioty.js. Materiały łączą się w stosy do 4000 sztuk, a wyposażenie zajmuje osobne miejsca. Zapis następuje od razu.';
+    section.appendChild(hint);
+  }
+
   function buildPanel(container) {
     root = container;
     root.innerHTML = "";
@@ -458,6 +649,8 @@
       );
     }
 
+    buildItemSection();
+
     const tools = makeSection(
       "🛠️ Narzędzia testowe"
     );
@@ -491,7 +684,7 @@
       "Panel edytuje zapis wybranej postaci. " +
       "Przed eksperymentami zrób kopię zapasową. " +
       "Nie modyfikuje bezpośrednio przebiegu walki, " +
-      "ekwipunku ani drzewek atrybutów.";
+      "drzewek atrybutów ani przebiegu walki.";
 
     root.appendChild(note);
 
@@ -567,7 +760,25 @@
     });
   }
 
-  function start() {
+  function loadCatalog() {
+    if (window.DevilsItems?.catalog) return Promise.resolve();
+    return new Promise(resolve => {
+      const existing = document.querySelector('script[data-gm-items-catalog]');
+      if (existing) {
+        existing.addEventListener('load', resolve, {once:true});
+        existing.addEventListener('error', resolve, {once:true});
+        return;
+      }
+      const script = document.createElement('script');
+      script.src = 'przedmioty.js';
+      script.dataset.gmItemsCatalog = '1';
+      script.onload = resolve;
+      script.onerror = resolve; // Stare pozycje pozostają dostępne nawet bez katalogu.
+      document.head.appendChild(script);
+    });
+  }
+  async function start() {
+    await loadCatalog();
     if (isFullPage) {
       const panel = document.getElementById(
         "gm-full-panel"

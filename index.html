@@ -1,611 +1,137 @@
-
 <!DOCTYPE html>
 <html lang="pl">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Moja Gra Idle</title>
+<title>DEVILS — Tworzenie postaci</title>
 <style>
+:root{--gold:#c7a052;--gold-bright:#f0d38b;--ink:#11100d;--paper:#e7d6a9}
 *{box-sizing:border-box}
-body{margin:0;background:#111315;color:#e6dfd0;font-family:Arial,sans-serif}
-header{background:#1c2022;border-bottom:2px solid #80683b;padding:18px;text-align:center}
-h1{margin:0;color:#d8b66c;font-size:26px}
-h2{color:#d8b66c;font-size:19px}
-main{max-width:1100px;margin:auto;padding:18px}
-.panel{background:#202426;border:1px solid #41443e;border-radius:8px;padding:18px;margin-bottom:15px}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}
-button{background:#80683b;color:white;border:0;padding:11px 16px;border-radius:5px;cursor:pointer;margin:4px}
-button:hover{background:#a3854d}
-button:disabled{opacity:.4;cursor:not-allowed}
-.bar{background:#101214;height:22px;border-radius:5px;overflow:hidden;margin:8px 0}
-.fill{height:100%;background:#548454;width:0%;transition:width .3s}
-.exp{background:#517aa5}
-.log{height:170px;overflow:auto;background:#151819;padding:10px;font-size:13px;line-height:1.6}
-.stat{display:flex;justify-content:space-between;border-bottom:1px solid #383d3d;padding:7px 0}
-.small{color:#aaa;font-size:13px}
-.hidden{display:none}
-@media(max-width:700px){.grid{grid-template-columns:1fr}}
+body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% 0%,#343027 0%,#151719 55%,#0d0e10 100%);color:var(--paper);font-family:Georgia,'Times New Roman',serif}
+main{max-width:1200px;margin:38px auto;padding:0 20px}
+.creator{position:relative;padding:26px 36px 30px;border:2px solid #a78342;box-shadow:inset 0 0 0 1px #40351f,0 20px 55px #0008;background:linear-gradient(155deg,#25292a,#191b1d)}
+.heading{text-align:center;margin:0 0 31px;font-size:18px;letter-spacing:.6px;color:var(--gold-bright);font-weight:normal}
+.subheading{text-align:center;color:#b5a889;font-size:12px;margin:-22px 0 25px}
+.classes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:29px}
+.class-column{min-width:0;position:relative;filter:grayscale(.55);opacity:.78;transition:filter .25s,opacity .25s,transform .25s}
+.classes:has(.class-column:hover) .class-column:not(:hover):not(.selected){filter:grayscale(1);opacity:.42}
+.classes:has(.selected) .class-column:not(.selected):not(:hover){filter:grayscale(1);opacity:.42}
+.class-column:hover,.class-column.selected{filter:grayscale(0);opacity:1;transform:translateY(-3px)}
+.class-card{position:relative;min-height:365px;margin-top:21px;border:2px solid #846a3a;background:linear-gradient(180deg,#252626 0%,#101112 80%);box-shadow:inset 0 0 0 1px #393328;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:34px 13px 15px;transition:border-color .25s,box-shadow .25s}
+.class-column:hover .class-card,.class-column.selected .class-card{border-color:#e7c16b;box-shadow:inset 0 0 28px #b8892b26,0 0 20px #cda75c2e}
+.class-label{position:absolute;z-index:2;top:-23px;left:11%;width:78%;height:46px;display:flex;align-items:center;justify-content:center;border:2px solid #c29b50;background:linear-gradient(#f2e4bf,#cfb87d);color:var(--ink);font-size:21px;font-weight:bold;letter-spacing:1px;text-shadow:0 1px #fff8;box-shadow:0 3px 9px #0008}
+.art{position:absolute;inset:38px 10px 67px;display:flex;align-items:center;justify-content:center;cursor:help;outline:none}
+.art::before{content:'';position:absolute;bottom:5%;left:12%;width:76%;height:73%;border-radius:50%;background:radial-gradient(ellipse,#b994493a 0%,#8e64241b 40%,transparent 73%);animation:glow 3s ease-in-out infinite alternate}
+.art::after{content:'';position:absolute;bottom:5%;width:65%;height:10px;border-radius:50%;background:#0009;filter:blur(6px)}
+.figure{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;transform-origin:50% 80%;animation:float 3.5s ease-in-out infinite;font-size:104px;line-height:1;filter:drop-shadow(0 9px 8px #000c)}
+.figure .weapon{font-size:43px;position:absolute;right:-20px;bottom:3px;transform:rotate(-25deg);filter:drop-shadow(0 2px 3px #000)}
+.class-column:nth-child(2) .figure{animation-delay:-1s}.class-column:nth-child(3) .figure{animation-delay:-2s}
+.class-column:nth-child(2) .art::before{background:radial-gradient(ellipse,#c24e3d46 0%,#70282225 42%,transparent 73%)}
+.class-column:nth-child(3) .art::before{background:radial-gradient(ellipse,#9146cc48 0%,#51217e25 42%,transparent 73%)}
+@keyframes float{0%,100%{transform:translateY(2px)}50%{transform:translateY(-9px)}}
+@keyframes glow{from{opacity:.48;transform:scale(.92)}to{opacity:1;transform:scale(1.08)}}
+.tooltip{position:absolute;z-index:8;left:50%;bottom:83%;width:min(315px,calc(100vw - 45px));transform:translate(-50%,8px);padding:14px 15px;background:#101214f5;color:#f0e1c0;border:1px solid #d8b66c;box-shadow:0 10px 26px #000c;font:14px/1.55 Georgia,'Times New Roman',serif;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .18s,transform .18s;text-align:left}
+.tooltip strong{display:block;color:#f0d38b;font-size:16px;margin-bottom:6px}
+.art:hover .tooltip,.art:focus-visible .tooltip{opacity:1;visibility:visible;transform:translate(-50%,0)}
+.choose,.begin,.back{font-family:Georgia,'Times New Roman',serif;font-weight:bold;cursor:pointer;border:2px solid #bd9650;background:linear-gradient(#eddbad,#c7a96d);color:#17130b;box-shadow:inset 0 0 0 1px #fff5;transition:background .2s,box-shadow .2s}
+.choose{z-index:2;position:relative;width:77%;padding:11px 8px;font-size:17px}
+.choose:hover,.begin:hover{background:linear-gradient(#ffeac1,#dfba6c)}
+.selected .choose{background:linear-gradient(#f8df9a,#c99b41);box-shadow:0 0 16px #d5a3437a}
+.nickname{display:block;width:100%;height:45px;margin-top:10px;border:2px solid #b18b48;border-radius:0;background:#e8d7b1;color:#17130b;font:16px Georgia,'Times New Roman',serif;text-align:center;padding:8px;outline:none}
+.nickname::placeholder{color:#625640;opacity:1}.nickname:focus{border-color:#f0d38b;box-shadow:0 0 0 2px #d2ab4b45}
+.class-column:not(.selected) .nickname{background:#c9c1b0}
+.footer{max-width:510px;margin:28px auto 0;text-align:center}.begin{width:100%;padding:15px 10px;font-size:19px;letter-spacing:.3px}.begin:disabled{opacity:.6;cursor:wait}
+.back{display:inline-block;margin-top:15px;padding:8px 18px;text-decoration:none;background:#242424;color:#ddc48b;font-size:13px}
+#error{min-height:21px;color:#ffad9e;font:14px Arial,sans-serif;margin:12px 0 0}
+.slot-info{position:absolute;right:15px;top:10px;font:12px Arial,sans-serif;color:#a99b7c}
+@media(max-width:850px){.creator{padding:25px 15px}.classes{gap:12px}.class-card{min-height:300px}.figure{font-size:75px}.figure .weapon{font-size:30px}.class-label{font-size:17px}.choose{width:94%}.tooltip{font-size:12px}}
+@media(max-width:610px){main{margin:15px auto;padding:0 9px}.classes{grid-template-columns:1fr;gap:25px;max-width:370px;margin:auto}.class-card{min-height:270px}.art{inset:35px 10px 65px}.figure{font-size:90px}.heading{font-size:17px;margin-top:16px}.tooltip{bottom:55%}.slot-info{top:8px}}
+@media(prefers-reduced-motion:reduce){.figure,.art::before{animation:none}.class-column,.tooltip{transition:none}}
 
-.inventory-tabs{
- display:flex;
- flex-wrap:wrap;
- gap:5px;
- margin-bottom:12px;
-}
-
-.inventory-tabs button.active{
- background:#c39a4d;
- color:#111;
- font-weight:bold;
-}
-
-.inventory-grid{
- display:grid;
- grid-template-columns:repeat(10,minmax(0,1fr));
- gap:5px;
-}
-
-.inventory-slot{
- aspect-ratio:1;
- background:#151819;
- border:1px solid #454b49;
- border-radius:5px;
- display:flex;
- align-items:center;
- justify-content:center;
- text-align:center;
- padding:3px;
- font-size:10px;
- overflow:hidden;
- overflow-wrap:anywhere;
- cursor:default;
-}
-
-.inventory-slot.filled{
- background:#30372e;
- border-color:#8b7446;
- color:#e4c781;
- cursor:pointer;
-}
-
-.inventory-slot:hover{
- border-color:#d8b66c;
-}
-
-@media(max-width:600px){
- .inventory-grid{gap:2px}
- .inventory-slot{font-size:8px;padding:1px}
-}
-
-/* BOCZNY INTERFEJS GRY */
-
-.game-sidebar{
- position:fixed;
- top:0;
- left:0;
- bottom:0;
- width:190px;
- background:#191d20;
- border-right:2px solid #80683b;
- padding:15px 10px;
- z-index:1000;
- transition:transform .25s;
-}
-
-.game-sidebar.closed{
- transform:translateX(-190px);
-}
-
-.game-sidebar h2{
- color:#d8b66c;
- font-size:18px;
- text-align:center;
- margin:12px 0 25px;
-}
-
-.game-menu-link{
- display:block;
- width:100%;
- text-align:left;
- margin-bottom:8px;
- padding:13px;
- border:0;
- border-radius:5px;
- background:#292e31;
- color:white;
- cursor:pointer;
-}
-
-.game-menu-link:hover{
- background:#80683b;
-}
-
-.game-menu-link.active{
- background:#80683b;
-}
-
-.game-menu-toggle{
- position:absolute;
- top:12px;
- right:10px;
- width:38px;
- height:38px;
- padding:0;
- border:0;
- border-radius:5px;
- background:#80683b;
- color:white;
- font-size:22px;
- cursor:pointer;
- z-index:1001;
-}
-
-.game-sidebar.closed .game-menu-toggle{
- right:-48px;
-}
-
-/* MIEJSCE NA MENU */
-
-body{
- transition:padding-left .25s;
- padding-left:190px;
-}
-
-body.game-menu-closed{
- padding-left:0;
-}
-
-@media(max-width:700px){
- body{
-  padding-left:0;
- }
-}
-
+/* Grafiki anime: delikatne, wydajne animacje bez zmian logiki gry. */
+.art{inset:28px 8px 63px;overflow:hidden;isolation:isolate;background:#090a0c}
+.art::before{z-index:2;inset:0;left:0;bottom:auto;width:100%;height:100%;border-radius:0;pointer-events:none;background:linear-gradient(180deg,#080a0c25 0%,transparent 27%,transparent 65%,#0b0d10ba 100%);animation:none}
+.art::after{z-index:2;bottom:0;left:0;width:100%;height:32%;border-radius:0;filter:none;pointer-events:none;background:linear-gradient(0deg,#0d0e11b8,transparent)}
+.class-art-image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;transform:scale(1.005) translateY(0);animation:anime-breathe 6.5s ease-in-out infinite alternate;will-change:transform;filter:saturate(.95) brightness(.83);transition:filter .35s ease}
+.class-column:hover .class-art-image,.class-column.selected .class-art-image{filter:saturate(1.12) brightness(1.05)}
+.class-column:nth-child(2) .class-art-image{animation-delay:-2.2s}
+.class-column:nth-child(3) .class-art-image{animation-delay:-4.1s}
+.art-aura{position:absolute;z-index:2;inset:0;pointer-events:none;opacity:.4;background:radial-gradient(ellipse at 50% 72%,#e3a03b2e,transparent 60%);animation:anime-aura 4s ease-in-out infinite alternate;mix-blend-mode:screen}
+.class-column:nth-child(2) .art-aura{background:radial-gradient(ellipse at 50% 70%,#ed344e42,transparent 60%)}
+.class-column:nth-child(3) .art-aura{background:radial-gradient(ellipse at 50% 70%,#9a43e84d,transparent 60%)}
+.class-column:hover .art-aura,.class-column.selected .art-aura{opacity:.9}
+.art-sparks{position:absolute;z-index:3;inset:0;pointer-events:none;overflow:hidden}
+.art-sparks i{position:absolute;bottom:-10%;left:var(--x);width:3px;height:3px;border-radius:50%;background:#f6d78d;box-shadow:0 0 8px 2px #ffb63d6e;opacity:0;animation:anime-spark var(--duration) linear infinite;animation-delay:var(--delay)}
+.class-column:nth-child(2) .art-sparks i{background:#ff6a7b;box-shadow:0 0 8px 2px #e9344e7e}
+.class-column:nth-child(3) .art-sparks i{background:#d0a1ff;box-shadow:0 0 8px 2px #963cf57e}
+@keyframes anime-breathe{from{transform:scale(1.005) translateY(0)}to{transform:scale(1.025) translateY(-3px)}}
+@keyframes anime-aura{from{opacity:.28}to{opacity:.75}}
+@keyframes anime-spark{0%{transform:translate3d(0,0,0);opacity:0}15%{opacity:.85}75%{opacity:.55}100%{transform:translate3d(18px,-255px,0);opacity:0}}
+.art .tooltip{z-index:5;bottom:12px;left:50%;width:calc(100% - 14px);max-width:340px;max-height:calc(100% - 20px);overflow:auto;background:#0c0d10f2;font-size:13px}
+@media(prefers-reduced-motion:reduce){.class-art-image,.art-aura,.art-sparks i{animation:none!important}.class-art-image{transform:none}}
 </style>
 </head>
 <body>
-
-<!-- BOCZNE MENU GRY -->
-
-<nav id="gameSidebar" class="game-sidebar">
-
- <button class="game-menu-toggle" onclick="toggleGameMenu()">
-  ☰
- </button>
-
- <h2>⚔️ INTERFEJS</h2>
-
- <button class="game-menu-link"
-  onclick="goToDashboard()">
-  🏠 Pulpit
- </button>
-
- <button class="game-menu-link">
-  🧙 Postać
- </button>
-
- <button class="game-menu-link" onclick="window.location.href='mapa.html'">
- 🗺️ Mapa
-</button>
-
- <button class="game-menu-link">
-  🎒 Ekwipunek
- </button>
-
- <button class="game-menu-link">
-  ⚔️ PvP
- </button>
-
- <button class="game-menu-link">
-  📬 Poczta
- </button>
-
- <button class="game-menu-link">
-  🛡️ Gildia
- </button>
-
- <button class="game-menu-link"
-  onclick="goToCharacterSelection()">
-  👥 Wybór postaci
- </button>
-
-</nav>
-
-<header>
-<h1>⚔️ MOJA GRA IDLE</h1>
-<div class="small">Mroczne średniowiecze</div>
-</header>
-
-<main>
-    <div style="text-align:right;margin-bottom:12px">
- <button onclick="logout()">🚪 Wyloguj się</button>
- <button onclick="backToCharacters()">👥 Wybór postaci</button>
-</div>
-<section id="creation" class="panel">
-<h2>Stwórz postać</h2>
-<p>Wybierz klasę:</p>
-<button onclick="createCharacter('Łowca')">Łowca</button>
-<button onclick="createCharacter('Devil')">Devil</button>
-<button onclick="createCharacter('Demon')">Demon</button>
+<main><section class="creator">
+<div class="slot-info" id="slotLabel"></div>
+<h1 class="heading">Wybierz swoją klasę, nazwij postać i rozpocznij swoją podróż</h1>
+<p class="subheading">Trzy drogi. Jedno przeznaczenie.</p>
+<form id="creationForm" novalidate>
+<div class="classes" role="group" aria-label="Wybierz klasę postaci">
+<section class="class-column" data-class="Łowca">
+ <div class="class-card"><div class="class-label">Łowca</div>
+ <div class="art" tabindex="0" aria-label="Opis klasy Łowca"><img class="class-art-image" src="lowca.webp" alt="Postać klasy Łowca w stylu anime" draggable="false"><span class="art-aura" aria-hidden="true"></span><span class="art-sparks" aria-hidden="true"><i style="--x:16%;--duration:4.8s;--delay:-1s"></i><i style="--x:36%;--duration:5.6s;--delay:-3s"></i><i style="--x:67%;--duration:4.4s;--delay:-2s"></i><i style="--x:84%;--duration:6.2s;--delay:-4s"></i></span><div class="tooltip"><strong>Łowca — mistrz oręża</strong>Agresywny wojownik, który walczy wszelakim fechtunkiem. Nie straszne mu miecze, katany, shurikeny ani noże, ale może równie biegle władać magią. Jego zaletą jest wysoki atak fizyczny, a przy odpowiednim treningu również magiczny.</div></div>
+ <button type="button" class="choose" aria-pressed="false">Wybierz</button></div>
+ <input class="nickname" data-nick="Łowca" type="text" maxlength="20" placeholder="Wpisz nazwę postaci" aria-label="Nick Łowcy" autocomplete="off">
 </section>
-
-<div id="game" class="hidden">
-<div class="grid">
-<section class="panel">
-<h2>🧙 Postać</h2>
-<p>Klasa: <b id="className"></b></p>
-<p>Poziom: <b id="level"></b></p>
-<p>❤️ Życie: <span id="hpText"></span></p>
-<div class="bar"><div class="fill" id="hpBar"></div></div>
-<p>⭐ EXP: <span id="expText"></span></p>
-<div class="bar"><div class="fill exp" id="expBar"></div></div>
-<p>🪙 Złoto: <b id="gold"></b></p>
+<section class="class-column" data-class="Devil">
+ <div class="class-card"><div class="class-label">Devil</div>
+ <div class="art" tabindex="0" aria-label="Opis klasy Devil"><img class="class-art-image" src="devil.webp" alt="Postać klasy Devil w stylu anime" draggable="false"><span class="art-aura" aria-hidden="true"></span><span class="art-sparks" aria-hidden="true"><i style="--x:16%;--duration:4.8s;--delay:-1s"></i><i style="--x:36%;--duration:5.6s;--delay:-3s"></i><i style="--x:67%;--duration:4.4s;--delay:-2s"></i><i style="--x:84%;--duration:6.2s;--delay:-4s"></i></span><div class="tooltip"><strong>Devil — wybraniec szatana</strong>Wybraniec samego szatana i nośnik jego mocy. Sprawdza się dobrze jako wojownik i użytkownik mocy żywiołów. Jego atutem jest szybka adaptacja oraz wysokie obrażenia magiczne i fizyczne.</div></div>
+ <button type="button" class="choose" aria-pressed="false">Wybierz</button></div>
+ <input class="nickname" data-nick="Devil" type="text" maxlength="20" placeholder="Wpisz nazwę postaci" aria-label="Nick Devila" autocomplete="off">
 </section>
-
-<section class="panel">
-<h2>📊 Statystyki</h2>
-<div id="stats"></div>
-<p>Wolne punkty: <b id="points"></b></p>
-</section>
-
-<section class="panel">
-<h2>🌲 Polowanie</h2>
-<p>Lokalizacja: <b>Skraj Lasu</b></p>
-<p>Przeciwnik: <b id="monsterName"></b></p>
-<p>❤️ Potwór: <span id="monsterHp"></span></p>
-<div class="bar"><div class="fill" id="monsterBar"></div></div>
-<button id="huntButton" onclick="toggleHunt()">▶ Rozpocznij polowanie</button>
-<p class="small">Walka odbywa się automatycznie.</p>
-</section>
-
-<section class="panel">
-<h2>📜 Dziennik walk</h2>
-<div id="log" class="log"></div>
+<section class="class-column" data-class="Demon">
+ <div class="class-card"><div class="class-label">Demon</div>
+ <div class="art" tabindex="0" aria-label="Opis klasy Demon"><img class="class-art-image" src="demon.webp" alt="Postać klasy Demon w stylu anime" draggable="false"><span class="art-aura" aria-hidden="true"></span><span class="art-sparks" aria-hidden="true"><i style="--x:16%;--duration:4.8s;--delay:-1s"></i><i style="--x:36%;--duration:5.6s;--delay:-3s"></i><i style="--x:67%;--duration:4.4s;--delay:-2s"></i><i style="--x:84%;--duration:6.2s;--delay:-4s"></i></span><div class="tooltip"><strong>Demon — władca żywiołów</strong>Odrodzony z grzesznej duszy. Perfekcyjny władca żywiołów i mistrz walki magicznej. Jego atak fizyczny bez treningu nie robi wrażenia, ale nadrabia to wysoką odpornością magiczną i potężnymi obrażeniami magicznymi.</div></div>
+ <button type="button" class="choose" aria-pressed="false">Wybierz</button></div>
+ <input class="nickname" data-nick="Demon" type="text" maxlength="20" placeholder="Wpisz nazwę postaci" aria-label="Nick Demona" autocomplete="off">
 </section>
 </div>
-
-<section class="panel">
-<h2>🎒 Ekwipunek</h2>
-<p class="small">Przedmioty zdobyte podczas polowania</p>
-
-<div class="inventory-tabs">
-  <button onclick="changeInventoryTab(0)">Zakładka 1</button>
-  <button onclick="changeInventoryTab(1)">Zakładka 2</button>
-  <button onclick="changeInventoryTab(2)">Zakładka 3</button>
-  <button onclick="changeInventoryTab(3)">Zakładka 4</button>
-</div>
-<p id="inventoryCount" class="small"></p>
-<div id="inventory" class="inventory-grid"></div>
-
-</section>
-
-<section class="panel">
-<h2>🔒 Systemy do rozbudowy</h2>
-<p>Mapa świata · Ekwipunek · Umiejętności · PvP · Ranking · Poczta · Gildie · Handel</p>
-</section>
-</div>
-</main>
-
+<div class="footer"><button id="createButton" class="begin" type="submit">Rozpocznij przygodę</button><p id="error" role="alert"></p><a class="back" href="postacie.html">← Wróć do wyboru postaci</a></div>
+</form>
+</section></main>
 <script>
-
-const loggedUser=sessionStorage.getItem("idleLoggedUser");
-
-if(!loggedUser){
- window.location.replace("login.html");
-}
-
-const activeSlot=Number(sessionStorage.getItem("idleActiveSlot"));
-
-if(
- sessionStorage.getItem("idleActiveSlot")===null ||
- !Number.isInteger(activeSlot) ||
- activeSlot<0 ||
- activeSlot>4
-){
- window.location.replace("postacie.html");
-}
-
-const SAVE_KEY="idleSlots_"+loggedUser;
-
-
-function saveGame(){
- if(!hero||!loggedUser)return;
-
- let slots;
- try{
-  slots=JSON.parse(localStorage.getItem(SAVE_KEY));
- }catch(e){
-  slots=null;
- }
-
- if(!Array.isArray(slots)){
-  slots=[null,null,null,null,null];
- }
-
- slots[activeSlot]={
-  hero:hero,
-  inventory:inventory
- };
-
- localStorage.setItem(SAVE_KEY,JSON.stringify(slots));
-}
-
-
-
-function loadGame(){
- try{
-  const slots=JSON.parse(localStorage.getItem(SAVE_KEY));
-
-  if(!Array.isArray(slots))return;
-
-  const data=slots[activeSlot];
-
-  if(!data||!data.hero)return;
-
-  hero=data.hero;
-  inventory=Array.isArray(data.inventory)?data.inventory:[];
-
-  document.getElementById("creation").classList.add("hidden");
-  document.getElementById("game").classList.remove("hidden");
-
-  spawnMonster();
-  render();
-  log("Wczytano postać ze slotu "+(activeSlot+1)+".");
- }catch(error){
-  console.error("Błąd wczytywania:",error);
- }
-}
-
-
-function logout(){
- saveGame();
- sessionStorage.removeItem("idleLoggedUser");
- window.location.href="login.html";
-}
-
-const statNames=["Siła","Inteligencja","Szybkość","Wytrzymałość","Energia"];
-let hero=null;
-let monster=null;
-let hunting=false;
-let lastAttack=0;
-
-let inventory=[];
-let currentInventoryTab=0;
-const INVENTORY_PAGE_SIZE=100;
-const INVENTORY_MAX_SLOTS=400;
-
-const lootTable=[
- {name:"Zardzewiały miecz",chance:15},
- {name:"Skórzana zbroja",chance:12},
- {name:"Stare buty",chance:10},
- {name:"Żelazny hełm",chance:7},
- {name:"Srebrny pierścień",chance:3}
-];
-
-function dropItem(){
- for(const item of lootTable){
-  if(Math.random()*100<item.chance){
-   if(inventory.length>=INVENTORY_MAX_SLOTS){
- log("🎒 Ekwipunek pełny! Przedmiot nie został zabrany.");
- return;
-}
-inventory.push(item.name);
-   log("🎁 Zdobyto przedmiot: "+item.name);
-   break;
-  }
- }
-}
-
-function changeInventoryTab(tab){
- currentInventoryTab=tab;
- renderInventory();
-}
-
-function renderInventory(){
- const box=document.getElementById("inventory");
- const start=currentInventoryTab*INVENTORY_PAGE_SIZE;
-
- box.innerHTML="";
-
- for(let i=0;i<INVENTORY_PAGE_SIZE;i++){
-  const slotIndex=start+i;
-  const item=inventory[slotIndex];
-
-  const slot=document.createElement("div");
-  slot.className="inventory-slot";
-
-  if(item){
-   slot.classList.add("filled");
-   slot.textContent=item;
-   slot.title=item+" | Slot "+(slotIndex+1);
-  }else{
-   slot.title="Pusty slot "+(slotIndex+1);
-  }
-
-  box.appendChild(slot);
- }
-
- document.getElementById("inventoryCount").textContent=
-  "Przedmioty: "+inventory.length+
-  " / "+INVENTORY_MAX_SLOTS+
-  " | Zakładka "+(currentInventoryTab+1)+"/4";
-
- document.querySelectorAll(".inventory-tabs button")
-  .forEach((button,index)=>{
-   button.classList.toggle(
-    "active",
-    index===currentInventoryTab
-   );
-  });
-}
-
-function createCharacter(characterClass){
- hero={
-  characterClass,level:1,exp:0,gold:0,
-  hp:100,maxHp:100,points:0,
-  stats:{"Siła":5,"Inteligencja":5,"Szybkość":5,"Wytrzymałość":5,"Energia":5}
- };
- document.getElementById("creation").classList.add("hidden");
- document.getElementById("game").classList.remove("hidden");
- spawnMonster();
- log("Utworzono postać: "+characterClass);
- render();
-}
-
-function requiredExp(){
- return hero.level*100;
-}
-
-function spawnMonster(){
- const names=["Wilk","Bandyta","Dziki pies"];
- const name=names[Math.floor(Math.random()*names.length)];
- const maxHp=35+hero.level*12;
- monster={name,hp:maxHp,maxHp};
-}
-
-function toggleHunt(){
- hunting=!hunting;
- document.getElementById("huntButton").textContent=
- hunting?"⏸ Zatrzymaj polowanie":"▶ Rozpocznij polowanie";
- lastAttack=Date.now();
-}
-
-function fight(){
- if(!hero||!hunting)return;
- const now=Date.now();
- if(now-lastAttack<1200)return;
- lastAttack=now;
-
- const damage=5+hero.stats["Siła"]*2+hero.level;
- monster.hp=Math.max(0,monster.hp-damage);
- log("Zadajesz "+damage+" obrażeń: "+monster.name);
-
- if(monster.hp<=0){
-  const gainedExp=20+hero.level*5;
-  const gainedGold=3+hero.level*2;
-  hero.exp+=gainedExp;
-  hero.gold+=gainedGold;
-  log("Pokonano: "+monster.name+"! +"+gainedExp+" EXP, +"+gainedGold+" złota.");
-
-  while(hero.exp>=requiredExp()){
-   hero.exp-=requiredExp();
-   hero.level++;
-   hero.points+=5;
-   hero.maxHp+=10;
-   hero.hp=hero.maxHp;
-   log("🎉 Nowy poziom: "+hero.level+"! +5 punktów statystyk.");
-  }
-  dropItem();
-spawnMonster();
-}else{
-  const received=Math.max(1,8+hero.level-hero.stats["Wytrzymałość"]);
-  hero.hp=Math.max(0,hero.hp-received);
-  if(hero.hp===0){
-   hero.exp=Math.floor(hero.exp*0.95);
-   hero.hp=hero.maxHp;
-   hunting=false;
-   document.getElementById("huntButton").textContent="▶ Rozpocznij polowanie";
-   log("💀 Postać zginęła. Utracono 5% aktualnego EXP.");
-  }
- }
- render();
-}
-
-function addStat(name){
- if(hero.points<=0)return;
- hero.stats[name]++;
- hero.points--;
- if(name==="Wytrzymałość"){
-  hero.maxHp+=10;
-  hero.hp+=10;
- }
- render();
-}
-
-function render(){
-    renderInventory();
- document.getElementById("className").textContent=hero.characterClass;
- document.getElementById("level").textContent=hero.level;
- document.getElementById("hpText").textContent=hero.hp+" / "+hero.maxHp;
- document.getElementById("hpBar").style.width=(hero.hp/hero.maxHp*100)+"%";
- document.getElementById("expText").textContent=hero.exp+" / "+requiredExp();
- document.getElementById("expBar").style.width=(hero.exp/requiredExp()*100)+"%";
- document.getElementById("gold").textContent=hero.gold;
- document.getElementById("points").textContent=hero.points;
- document.getElementById("monsterName").textContent=monster.name;
- document.getElementById("monsterHp").textContent=monster.hp+" / "+monster.maxHp;
- document.getElementById("monsterBar").style.width=(monster.hp/monster.maxHp*100)+"%";
-
- document.getElementById("stats").innerHTML=statNames.map(name=>
-  '<div class="stat"><span>'+name+': '+hero.stats[name]+
-  '</span><button '+(hero.points===0?"disabled":"")+
-  ' onclick="addStat(\''+name+'\')">+</button></div>'
- ).join("");
-}
-
-function log(message){
- const box=document.getElementById("log");
- const line=document.createElement("div");
- line.textContent=message;
- box.prepend(line);
- while(box.children.length>60)box.lastChild.remove();
-}
-
-setInterval(fight,200);
-
-setInterval(saveGame,3000);
-
-window.addEventListener("pagehide",saveGame);
-
-loadGame();
-function backToCharacters(){
- saveGame();
- sessionStorage.removeItem("idleActiveSlot");
- window.location.href="postacie.html";
-}
-
-/* OBSŁUGA BOCZNEGO MENU */
-
-function toggleGameMenu(){
- const sidebar=document.getElementById("gameSidebar");
-
- const isClosed=sidebar.classList.toggle("closed");
-
- document.body.classList.toggle(
-  "game-menu-closed",
-  isClosed
- );
-
- localStorage.setItem(
-  "idleMenuClosed",
-  isClosed?"1":"0"
- );
-}
-
-function goToDashboard(){
- if(typeof saveGame==="function"){
-  saveGame();
- }
-
- window.location.href="pulpit.html";
-}
-
-function goToCharacterSelection(){
- if(typeof saveGame==="function"){
-  saveGame();
- }
-
- sessionStorage.removeItem("idleActiveSlot");
- window.location.href="postacie.html";
-}
-
-/* PRZYWRÓCENIE STANU MENU */
-
-if(localStorage.getItem("idleMenuClosed")==="1"){
- document.getElementById("gameSidebar").classList.add("closed");
- document.body.classList.add("game-menu-closed");
-}
-
+(()=>{'use strict';
+const user=sessionStorage.getItem('idleLoggedUser');
+const rawSlot=sessionStorage.getItem('idleActiveSlot');
+const slot=rawSlot===null?NaN:Number(rawSlot);
+if(!user){location.replace('login.html');return;}
+if(!Number.isInteger(slot)||slot<0||slot>4){location.replace('postacie.html');return;}
+const saveKey='idleSlots_'+user;
+const errorBox=document.getElementById('error');
+const button=document.getElementById('createButton');
+const columns=[...document.querySelectorAll('.class-column')];
+let selectedClass='';
+document.getElementById('slotLabel').textContent='Slot '+(slot+1);
+function getSlots(){try{const data=JSON.parse(localStorage.getItem(saveKey)||'[]');return Array.isArray(data)?Array.from({length:5},(_,i)=>data[i]||null):[null,null,null,null,null];}catch{return [null,null,null,null,null];}}
+if(getSlots()[slot]?.hero){location.replace('pulpit.html');return;}
+function selectClass(name){selectedClass=name;columns.forEach(column=>{const active=column.dataset.class===name;column.classList.toggle('selected',active);const choice=column.querySelector('.choose');choice.setAttribute('aria-pressed',String(active));choice.textContent=active?'✓ Wybrano':'Wybierz';});errorBox.textContent='';}
+columns.forEach(column=>{column.querySelector('.choose').addEventListener('click',()=>selectClass(column.dataset.class));column.querySelector('.art').addEventListener('click',()=>selectClass(column.dataset.class));column.querySelector('.nickname').addEventListener('focus',()=>selectClass(column.dataset.class));});
+document.getElementById('creationForm').addEventListener('submit',event=>{
+ event.preventDefault();if(button.disabled)return;
+ if(!selectedClass){errorBox.textContent='Najpierw wybierz klasę postaci.';return;}
+ const input=columns.find(column=>column.dataset.class===selectedClass).querySelector('.nickname');
+ const name=input.value.trim().replace(/\s+/g,' ');
+ if(!/^[\p{L}\p{N}_ -]{3,20}$/u.test(name)){errorBox.textContent='Nick musi mieć 3–20 znaków i zawierać litery, cyfry, spacje, _ lub -.';input.focus();return;}
+ const slots=getSlots();
+ if(slots[slot]?.hero){errorBox.textContent='Ten slot jest już zajęty. Wróć do wyboru postaci.';return;}
+ if(slots.some((entry,index)=>index!==slot&&entry?.hero&&String(entry.hero.name||entry.hero.nick||'').toLocaleLowerCase('pl')===name.toLocaleLowerCase('pl'))){errorBox.textContent='Masz już postać o takim nicku na tym koncie.';return;}
+ const hero={name,nick:name,characterClass:selectedClass,level:1,exp:0,expToNext:100,gold:0,hon:0,shen:0,hp:100,maxHp:100,points:0,stats:{'Siła':5,'Inteligencja':5,'Szybkość':5,'Wytrzymałość':5,'Energia':5}};
+ slots[slot]={hero,inventory:[]};
+ try{button.disabled=true;localStorage.setItem(saveKey,JSON.stringify(slots));sessionStorage.setItem('idleActiveSlot',String(slot));location.replace('pulpit.html');}
+ catch(error){button.disabled=false;console.error(error);errorBox.textContent='Nie udało się zapisać postaci. Sprawdź pamięć przeglądarki.';}
+});
+})();
 </script>
 </body>
 </html>

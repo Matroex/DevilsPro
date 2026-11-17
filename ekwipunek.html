@@ -8,89 +8,784 @@
 </style>
 <link rel="stylesheet" href="interfejs.css">
 <script src="interfejs.js" defer></script>
-</head>
+<style id="devils-look-style">
+.devils-look{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;min-height:350px;background:radial-gradient(ellipse at 50% 45%,#492820 0%,#241518 56%,#110d0f 100%);border:1px solid #806337;position:relative;overflow:hidden;padding:10px}
+.devils-look:before{content:'✦';position:absolute;top:10px;left:13px;color:#d3a956}.devils-look img{display:block;width:auto;height:340px;max-width:100%;object-fit:contain;filter:drop-shadow(0 9px 15px #0009)}
+.devils-look .look-title{font:15px Georgia,serif;color:#e8cd91;text-align:center}.devils-look .look-sub{font:12px Georgia,serif;color:#c7a76c;text-align:center}.devils-look .look-error{font-size:12px;color:#e1a89a}
+.gear-stage .devils-look{min-height:320px;margin-bottom:15px}.gear-stage .devils-look img{height:290px}
+@media(max-width:700px){.devils-look img{height:300px}}
+</style>
+<script src="wyglad_postaci.js" defer></script>
+<script src="przedmioty.js" defer></script>
+<script src="dymki.js" defer></script>
+<script src="runy-bonusy.js" defer></script>
+<script src="rdzen-rozwoj.js" defer></script>
+<style id="devils-inventory-v2">
+.layout{grid-template-columns:minmax(350px,430px) minmax(320px,1fr) minmax(290px,390px)}
+.gear-stage{padding:12px 8px 14px;min-height:560px}
+.gear-grid{max-width:none;width:100%;height:530px;display:grid;grid-template-columns:76px minmax(0,1fr) 76px;grid-template-rows:repeat(5,minmax(0,1fr));gap:7px}
+#devilsGearPreview{grid-column:2;grid-row:1/6;min-width:0;min-height:0}
+.gear-grid .devils-look{height:100%;min-height:0;margin:0;padding:5px;gap:0;background:radial-gradient(ellipse,#38201d 0%,#160e12 85%)}
+.gear-grid .devils-look img{height:100%;max-height:500px;width:100%;object-fit:contain}
+.gear-grid .devils-look .look-title,.gear-grid .devils-look .look-sub{display:none}
+.gear-slot{grid-column:auto!important;grid-row:auto!important;z-index:1;font-size:10px;padding:3px;min-height:0;cursor:pointer}
+.gear-slot.weapon{grid-column:1!important;grid-row:2!important}
+.gear-slot.helmet{grid-column:1!important;grid-row:1!important}
+.gear-slot.armor{grid-column:3!important;grid-row:2!important}
+.gear-slot.gloves{grid-column:3!important;grid-row:3!important}
+.gear-slot.pants{grid-column:3!important;grid-row:4!important}
+.gear-slot.boots{grid-column:1!important;grid-row:5!important}
+.gear-slot.necklace{grid-column:3!important;grid-row:1!important}
+.gear-slot.ring{grid-column:3!important;grid-row:5!important}
+.gear-slot.core{grid-column:1!important;grid-row:4!important}
+.gear-slot.shield{grid-column:1!important;grid-row:4!important}
+.gear-slot.core{grid-column:1!important;grid-row:3!important}
+.gear-slot.drag-over{border-color:#ffdb6b!important;box-shadow:0 0 0 2px #ffdb6b;background:#5a4221!important}
+.gear-slot .symbol{font-size:20px}.gear-item-name{font-size:9px}
+.item[draggable=true]{cursor:grab}.item.dragging{opacity:.45}
+.gear-grid .devils-look:before{display:none}
+@media(max-width:1250px){.layout{grid-template-columns:minmax(320px,420px) minmax(320px,1fr)}.bag-panel{grid-column:1/-1}}
+@media(max-width:750px){.layout{grid-template-columns:minmax(0,1fr)}.gear-grid{grid-template-columns:70px minmax(0,1fr) 70px}.bag-panel{grid-column:auto}}
+</style><style id="devils-inventory-v3">
+/* 5 kolumn × 12 rzędów; sześć zakładek */
+.layout{grid-template-columns:minmax(335px,425px) minmax(300px,1fr) minmax(310px,365px);gap:12px}
+.bag-panel{width:100%;min-width:0}
+.bag-panel .panel-head{text-align:center;font-family:Georgia,serif;letter-spacing:2px}
+.tabs{grid-template-columns:repeat(6,minmax(0,1fr));gap:3px;padding:10px 10px 8px}
+.tabs button{min-width:0;padding:9px 2px;font-size:13px;border-radius:0}
+.tabs button.tab-drop{border-color:#f6d77c;background:#6a4b21}
+.bag-grid{grid-template-columns:repeat(5,minmax(0,1fr));grid-template-rows:repeat(12,minmax(0,1fr));gap:5px;padding:0 10px 12px;max-height:none;overflow:visible}
+.bag-grid .item{aspect-ratio:1;min-height:0;overflow:hidden;border-radius:0;background:linear-gradient(135deg,#211c15,#0d0c0b);border:1px solid #69512a;box-shadow:inset 0 0 0 1px #17120b}
+.bag-grid .item.filled{background:radial-gradient(circle at 50% 42%,#423019,#17130e 85%);border-color:#a17d3b}
+.bag-grid .item.filled:hover,.bag-grid .item.selected{background:#45331b;border-color:#e8c369}
+.bag-grid .item.drag-over{background:#604522;border:2px solid #f8da7b;box-shadow:0 0 12px #d9ad4970}
+.bag-grid .item span{font-size:clamp(10px,0.85vw,14px);line-height:1.25;white-space:normal;overflow:hidden;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;text-align:center}
+.bag-info{font-size:12px}.bag-actions{gap:5px}
+@media(max-width:1250px){.layout{grid-template-columns:minmax(315px,425px) minmax(320px,1fr)}.bag-panel{grid-column:1/-1;max-width:425px}.bag-grid .item span{font-size:13px}}
+@media(max-width:750px){.layout{grid-template-columns:minmax(0,1fr)}.bag-panel{grid-column:auto;max-width:450px;margin:auto}.bag-grid .item span{font-size:clamp(10px,2.8vw,13px)}}
+</style>
+<style id="devils-inventory-v4">
+/* Zwarte okno wyposażenia i osobny podgląd postaci */
+.layout{grid-template-columns:minmax(280px,345px) minmax(300px,1fr) minmax(285px,325px);gap:10px}
+.gear-stage{min-height:0;padding:10px}
+.gear-grid{height:auto;max-width:100%;grid-template-columns:repeat(5,minmax(0,1fr));grid-template-rows:repeat(2,72px);gap:6px}
+.gear-slot,.gear-slot.weapon,.gear-slot.helmet,.gear-slot.armor,.gear-slot.gloves,.gear-slot.pants,.gear-slot.boots,.gear-slot.necklace,.gear-slot.ring,.gear-slot.core,.gear-slot.shield{grid-column:auto!important;grid-row:auto!important}
+.gear-slot .symbol{font-size:20px}.gear-item-name{font-size:9px}
+.gear-footer{padding:8px 10px}
+.look-separate{margin:12px 10px 10px;border:1px solid #826a34;background:#130e11;padding:7px}
+.look-separate .devils-look{height:340px;min-height:0;margin:0;padding:5px}
+.look-separate .devils-look img{height:100%;max-height:325px;width:100%;object-fit:contain}
+.look-separate .look-title,.look-separate .look-sub{display:none}
+.bag-grid{gap:3px;grid-template-rows:repeat(12,minmax(0,1fr));padding:0 8px 8px;max-height:520px;overflow-y:auto;align-content:start}
+.bag-grid .item{aspect-ratio:1.12;min-height:0}
+.bag-grid .item.multi{aspect-ratio:auto;z-index:2;display:flex;flex-direction:column}
+.bag-grid .item.multi .item-icon{font-size:24px}
+.bag-grid .item .item-icon{font-size:17px}
+.bag-grid .item .item-label{font-size:10px;line-height:1.1;max-height:3.3em}
+.bag-grid .item.occupied-part{opacity:.32;pointer-events:none}
+.tabs button{position:relative}
+.tabs button.tab-loading:after{content:'';position:absolute;left:0;bottom:0;height:3px;width:var(--tab-progress,0%);background:#f8d26b}
+.bag-panel .panel-head{padding:11px}
+.bag-info{padding-bottom:7px}
+.details{padding:8px;min-height:50px}
+@media(max-width:1300px){.layout{grid-template-columns:minmax(260px,340px) minmax(290px,1fr)}.bag-panel{grid-column:1/-1;max-width:340px}}
+@media(max-width:760px){.layout{grid-template-columns:minmax(0,1fr)}.bag-panel{max-width:340px}.gear-grid{grid-template-rows:repeat(2,68px)}}
+</style>
+
+<style id="devils-equipment-anatomy-v5">
+/* Układ anatomiczny według szkicu: model w tle, kafelki ponad nim */
+.gear-stage{padding:10px 8px 8px!important;min-height:0!important;background:radial-gradient(ellipse at 50% 38%,#302728,#141115 76%)!important}
+.gear-grid{position:relative!important;display:block!important;width:100%!important;max-width:350px!important;height:405px!important;margin:0 auto!important;overflow:hidden;border:1px solid #6f5a34;background:radial-gradient(ellipse at center,rgba(94,84,80,.17),transparent 68%)}
+.gear-grid::before{content:"";position:absolute;inset:6% 16% 7%;background:url('manekin_mezczyzna.png') center center / contain no-repeat;opacity:.66;mix-blend-mode:normal;pointer-events:none;filter:grayscale(1) contrast(1.15)}
+.gear-grid .gear-slot{position:absolute!important;display:flex!important;width:47px!important;height:47px!important;min-height:0!important;padding:3px!important;transform:translate(-50%,-50%);border:1px solid #9a7b42!important;background:linear-gradient(145deg,rgba(35,29,26,.93),rgba(13,13,14,.90))!important;z-index:2!important;grid-column:auto!important;grid-row:auto!important;gap:1px!important}
+.gear-grid .gear-slot .symbol{font-size:15px!important;line-height:1.1}
+.gear-grid .gear-item-name{font-size:8px!important;line-height:1.06!important;max-height:23px;overflow:hidden;overflow-wrap:anywhere}
+.gear-grid .gear-slot.equipped{background:linear-gradient(145deg,rgba(91,66,32,.97),rgba(37,27,19,.94))!important;border-color:#e2bd64!important}
+.gear-grid .gear-slot.drag-over{box-shadow:0 0 0 2px #ffe185!important}
+.gear-grid .gear-slot.helmet{left:50%!important;top:12%!important}
+.gear-grid .gear-slot.necklace{left:50%!important;top:25%!important}
+.gear-grid .gear-slot.armor{left:50%!important;top:38%!important}
+.gear-grid .gear-slot.armor.gear-visual-copy{top:51%!important}
+.gear-grid .gear-slot.pants{left:50%!important;top:64%!important}
+.gear-grid .gear-slot.boots{left:50%!important;top:77%!important}
+.gear-grid .gear-slot.weapon{left:28%!important;top:30%!important}
+.gear-grid .gear-slot.weapon.gear-visual-copy.weapon-second{top:43%!important}
+.gear-grid .gear-slot.weapon.gear-visual-copy.weapon-third{top:56%!important}
+.gear-grid .gear-slot.shield{left:72%!important;top:44%!important}
+.gear-grid .gear-slot.ring{left:72%!important;top:57%!important}
+.gear-grid .gear-slot.gloves{left:79%!important;top:70%!important}
+.gear-grid .gear-slot.core{left:12%!important;top:89%!important}
+.gear-grid::after{content:"";position:absolute;inset:5px;border:1px solid rgba(165,129,64,.12);pointer-events:none}
+@media(max-width:760px){.gear-grid{height:405px!important}}
+</style>
+
+<style id="devils-silhouette-v6">
+/* Prawie czarny panel, wyraźniejszy manekin z osobnymi sylwetkami płci */
+.gear-stage{background:#050505!important}
+.gear-grid{background:#030303!important;border-color:#67532e!important}
+.gear-grid::before{inset:4% 5% 6%!important;opacity:.82!important;filter:grayscale(1) brightness(.85) contrast(1.3)!important;mix-blend-mode:normal!important}
+.gear-grid[data-gender="female"]::before{background-image:url('manekin_kobieta.png')!important}
+.gear-grid[data-gender="male"]::before{background-image:url('manekin_mezczyzna.png')!important}
+.gear-grid .gear-slot{background:rgba(3,3,3,.80)!important;border-color:#987944!important}
+.gear-grid .gear-slot.equipped{background:rgba(46,34,16,.90)!important}
+.gear-grid .gear-slot:hover{background:rgba(60,45,21,.93)!important}
+</style>
+
+<style id="devils-equipment-polish-v7">
+/* Jedna wizualna całość dla broni i pancerza; bez powielonych ikon */
+.gear-grid .gear-slot.weapon{left:28%!important;top:36.5%!important;height:99px!important}
+.gear-grid .gear-slot.armor{left:50%!important;top:44.5%!important;height:99px!important}
+.gear-grid .gear-slot.shield{left:72%!important;top:32%!important}
+.gear-grid .gear-slot.ring{left:72%!important;top:45%!important}
+.gear-grid .gear-slot.gloves{left:72%!important;top:58%!important}
+.gear-grid .gear-slot.empty{background:rgba(0,0,0,.13)!important;border:1px solid rgba(174,143,80,.34)!important;color:rgba(204,191,158,.55)!important;box-shadow:none!important}
+.gear-grid .gear-slot.empty .gear-item-name{font-size:9px!important;max-height:none!important;font-weight:400;letter-spacing:.15px}
+.gear-grid .gear-slot.empty:hover,.gear-grid .gear-slot.empty.drag-over{background:rgba(95,72,30,.32)!important;border-color:#d7b56b!important;color:#f1dcab!important}
+.gear-grid .gear-slot.equipped .gear-item-name{font-size:9px!important}
+.gear-grid .gear-slot.equipped .symbol{font-size:19px!important}
+.bag-grid{position:relative}
+.bag-drop-preview{position:absolute;z-index:9;pointer-events:none;box-sizing:border-box;border:2px solid #ffe184;background:rgba(222,177,59,.23);box-shadow:inset 0 0 16px rgba(255,218,109,.25),0 0 9px rgba(235,189,84,.6);border-radius:2px}
+.bag-drop-preview.invalid{border-color:#d96969;background:rgba(164,42,42,.19);box-shadow:none}
+</style>
+<style id="devils-class-atmosphere-v8">
+/* Barwne, lekko transparentne panele dopasowane do klasy aktywnej postaci. */
+body[data-hero-theme="lowca"]{--aura-rgb:104,25,28;--aura-glow:rgba(151,43,39,.27);--aura-panel:rgba(75,22,25,.35)}
+body[data-hero-theme="devil"]{--aura-rgb:21,65,116;--aura-glow:rgba(30,92,170,.29);--aura-panel:rgba(19,51,93,.36)}
+body[data-hero-theme="demon"]{--aura-rgb:24,30,91;--aura-glow:rgba(47,53,139,.29);--aura-panel:rgba(23,27,72,.40)}
+body[data-hero-theme]{
+ background:radial-gradient(ellipse 85% 68% at 53% 5%,var(--aura-glow),transparent 78%),
+ radial-gradient(ellipse 75% 85% at 96% 85%,rgba(var(--aura-rgb),.25),transparent 80%),
+ linear-gradient(160deg,#120e12 0%,#0c1015 48%,#090b0e 100%)!important;
+ background-attachment:fixed!important;
+}
+body[data-hero-theme] .panel{
+ background:linear-gradient(135deg,rgba(var(--aura-rgb),.22),rgba(17,16,19,.79) 52%,var(--aura-panel))!important;
+ border-color:rgba(185,148,76,.66)!important;
+ box-shadow:inset 0 0 0 1px rgba(225,178,87,.08),0 10px 30px rgba(0,0,0,.22)!important;
+ backdrop-filter:blur(6px);
+}
+body[data-hero-theme] .panel-head{
+ background:linear-gradient(90deg,rgba(var(--aura-rgb),.26),rgba(11,10,12,.17))!important;
+ border-bottom-color:rgba(175,138,67,.47)!important;
+}
+body[data-hero-theme] .stats-body,body[data-hero-theme] .bag-info,
+body[data-hero-theme] .gear-footer,body[data-hero-theme] .tabs,
+body[data-hero-theme] .bag-actions{background:rgba(0,0,0,.12)}
+body[data-hero-theme] .stat-line{border-bottom-color:rgba(204,187,155,.15)}
+body[data-hero-theme] .details{background:rgba(5,5,8,.48)}
+body[data-hero-theme] .gear-stage{background:rgba(0,0,0,.48)!important}
+body[data-hero-theme] .gear-grid{background:#030303!important}
+body[data-hero-theme] .look-separate{background:rgba(4,4,6,.52)!important}
+body[data-hero-theme] .bag-grid .item:not(.filled){background:rgba(7,8,10,.55)!important}
+body[data-hero-theme] .bag-grid .item.filled{background:radial-gradient(circle at 50% 40%,rgba(91,69,35,.5),rgba(11,11,13,.9) 85%)!important}
+@media(prefers-reduced-motion:no-preference){body[data-hero-theme]{transition:background .3s ease}}
+/* V10: inwentarz pozostaje w 100% nieprzezroczysty; barwy klasy tylko na pozostałych panelach. */
+body[data-hero-theme] .bag-panel{background:#171719!important;backdrop-filter:none!important;box-shadow:none!important}
+body[data-hero-theme] .bag-panel .panel-head{background:#1c1a1a!important}
+body[data-hero-theme] .bag-panel .tabs,
+body[data-hero-theme] .bag-panel .bag-info,
+body[data-hero-theme] .bag-panel .bag-actions{background:#171719!important}
+body[data-hero-theme] .bag-panel .bag-grid{background:#11100e!important}
+body[data-hero-theme] .bag-panel .bag-grid .item,
+body[data-hero-theme] .bag-panel .bag-grid .item:not(.filled){background:linear-gradient(135deg,#211c15,#0d0c0b)!important}
+body[data-hero-theme] .bag-panel .bag-grid .item.filled{background:radial-gradient(circle at 50% 42%,#423019,#17130e 85%)!important}
+body[data-hero-theme] .bag-panel .bag-grid .item.filled:hover,
+body[data-hero-theme] .bag-panel .bag-grid .item.selected{background:#45331b!important}
+body[data-hero-theme] .bag-panel .details{background:#201b15!important}
+/* Stałe, kwadratowe komórki także przy zmianie wysokości strony. */
+body[data-hero-theme] .bag-panel .bag-grid{grid-template-rows:repeat(12,54px)!important;align-content:start!important}
+body[data-hero-theme] .bag-panel .bag-grid .item{aspect-ratio:auto!important;min-height:0!important}
+</style>
+<style id="devils-v15-items">.bag-grid .item .item-image{display:block;width:100%;height:calc(100% - 19px);max-height:50px;object-fit:contain;pointer-events:none}.bag-grid .item .item-label{font-size:9px;line-height:1.05}.bag-grid .item[data-rarity="Zwykły"]{border-color:#367d46!important}.bag-grid .item[data-rarity="Rzadki"]{border-color:#7753ae!important}.bag-grid .item[data-rarity="Epicki"]{border-color:#ad4545!important}.bag-grid .item[data-rarity="Legendarny"]{border-color:#cba33d!important}.bag-grid .item.upgrade-target{outline:2px solid #70df76;outline-offset:-3px}#devilsUpgradeToast{position:fixed;right:18px;top:90px;z-index:999999;padding:12px 23px;font:bold 17px Georgia,serif;border:1px solid;box-shadow:0 8px 26px #0009;pointer-events:none;opacity:0;transition:opacity .15s}#devilsUpgradeToast.show{opacity:1}#devilsUpgradeToast.success{color:#83f3a0;border-color:#389a54;background:#10291d}#devilsUpgradeToast.failure{color:#ff9292;border-color:#b43f3f;background:#341519}</style><style id="devils-item-removed-toast">#devilsItemRemovedToast{position:fixed;right:18px;top:90px;z-index:1000001;padding:12px 23px;font:bold 16px Georgia,serif;color:#83f3a0;border:1px solid #389a54;background:#10291d;box-shadow:0 8px 26px #0009;pointer-events:none;opacity:0;transition:opacity .15s}#devilsItemRemovedToast.show{opacity:1}</style><style id="devils-upgrade-full-target">.bag-grid .bag-drop-preview.upgrade-preview:not(.invalid){border-color:#7fff9b;background:rgba(60,180,92,.21);box-shadow:inset 0 0 18px #4cdb7040,0 0 14px #49dd7b80}</style>
+<style id="devils-quality-frames-v16">
+/* Quality is the frame; upgrade level controls the separate interior glow. */
+.bag-panel .bag-grid .item.filled{--q:#8c8580;--q-soft:#b5aca1;--u:transparent;isolation:isolate;overflow:hidden;border:1px solid var(--q)!important;box-shadow:inset 0 0 0 1px #09090c, inset 0 0 0 2px color-mix(in srgb,var(--q) 52%,transparent),0 0 5px color-mix(in srgb,var(--q) 25%,transparent)!important;background:radial-gradient(ellipse at 50% 35%,var(--u),rgba(12,11,14,.88) 88%)!important;transition:border-color .18s,box-shadow .18s,filter .18s}
+.bag-panel .bag-grid .item.filled[data-rarity="Pospolity"]{--q:#807c77;--q-soft:#b8b3ad}
+.bag-panel .bag-grid .item.filled[data-rarity="Zwykły"]{--q:#27bb67;--q-soft:#9af7ad}
+.bag-panel .bag-grid .item.filled[data-rarity="Rzadki"]{--q:#9b60ef;--q-soft:#dab5ff}
+.bag-panel .bag-grid .item.filled[data-rarity="Epicki"]{--q:#ec4a4a;--q-soft:#ffb0a2}
+.bag-panel .bag-grid .item.filled[data-rarity="Legendarny"]{--q:#e6ad33;--q-soft:#fff0a1}
+.bag-panel .bag-grid .item.filled::before{content:"";position:absolute;inset:2px;z-index:0;pointer-events:none;opacity:.9;background:linear-gradient(var(--q-soft),var(--q-soft)) left top/9px 1px no-repeat,linear-gradient(var(--q-soft),var(--q-soft)) left top/1px 9px no-repeat,linear-gradient(var(--q-soft),var(--q-soft)) right top/9px 1px no-repeat,linear-gradient(var(--q-soft),var(--q-soft)) right top/1px 9px no-repeat,linear-gradient(var(--q-soft),var(--q-soft)) left bottom/9px 1px no-repeat,linear-gradient(var(--q-soft),var(--q-soft)) left bottom/1px 9px no-repeat,linear-gradient(var(--q-soft),var(--q-soft)) right bottom/9px 1px no-repeat,linear-gradient(var(--q-soft),var(--q-soft)) right bottom/1px 9px no-repeat}
+.bag-panel .bag-grid .item.filled > *{position:relative;z-index:2}
+.bag-panel .bag-grid .item.filled[data-upgrade="6"]{--u:rgba(23,129,63,.55);--shine:#58f68a}
+.bag-panel .bag-grid .item.filled[data-upgrade="7"]{--u:rgba(111,47,177,.62);--shine:#c38bff}
+.bag-panel .bag-grid .item.filled[data-upgrade="8"]{--u:rgba(174,37,44,.61);--shine:#ff7a78}
+.bag-panel .bag-grid .item.filled[data-upgrade="9"]{--u:rgba(190,129,20,.62);--shine:#ffe37b}
+.bag-panel .bag-grid .item.filled[data-upgrade="6"],.bag-panel .bag-grid .item.filled[data-upgrade="7"],.bag-panel .bag-grid .item.filled[data-upgrade="8"],.bag-panel .bag-grid .item.filled[data-upgrade="9"]{animation:devils-item-aura 2.8s ease-in-out infinite}
+.bag-panel .bag-grid .item.filled[data-upgrade="6"]::after,.bag-panel .bag-grid .item.filled[data-upgrade="7"]::after,.bag-panel .bag-grid .item.filled[data-upgrade="8"]::after,.bag-panel .bag-grid .item.filled[data-upgrade="9"]::after{content:"";position:absolute;inset:-65% -120%;z-index:1;pointer-events:none;background:linear-gradient(110deg,transparent 42%,rgba(255,255,255,.04) 47%,color-mix(in srgb,var(--shine) 45%,transparent) 50%,rgba(255,255,255,.08) 53%,transparent 58%);transform:translateX(-65%) rotate(8deg);animation:devils-item-sweep 3.6s ease-in-out infinite}
+@keyframes devils-item-aura{0%,100%{filter:drop-shadow(0 0 2px var(--shine))}50%{filter:drop-shadow(0 0 7px var(--shine))}}
+@keyframes devils-item-sweep{0%,14%{transform:translateX(-65%) rotate(8deg)}60%,100%{transform:translateX(65%) rotate(8deg)}}
+.bag-panel .bag-grid .item.filled:hover{box-shadow:inset 0 0 0 1px #fff6cc,0 0 12px var(--q)!important}
+@media(prefers-reduced-motion:reduce){.bag-panel .bag-grid .item.filled{animation:none!important}.bag-panel .bag-grid .item.filled::after{animation:none!important;display:none}}
+</style>
+<style id="devils-icon-only-tiles">
+.bag-panel .bag-grid .item.filled .item-label{display:none!important}
+.bag-panel .bag-grid .item.filled .item-image{width:calc(100% - 6px)!important;height:calc(100% - 6px)!important;max-height:none!important;object-fit:contain!important;margin:auto!important}
+.bag-panel .bag-grid .item.filled .item-icon{font-size:clamp(18px,2vw,30px)!important;line-height:1!important}
+</style>
+<style id="devils-equipped-quality-v17">
+/* Ten sam system ramki jakości i poświaty ulepszenia co w inwentarzu. */
+.gear-grid .gear-slot.equipped{--q:#807c77;--q-soft:#b8b3ad;--u:transparent;--shine:transparent;isolation:isolate;overflow:hidden;border:1px solid var(--q)!important;background:radial-gradient(ellipse at 50% 35%,var(--u),rgba(10,9,12,.92) 88%)!important;box-shadow:inset 0 0 0 1px #09090c,inset 0 0 0 2px color-mix(in srgb,var(--q) 52%,transparent),0 0 5px color-mix(in srgb,var(--q) 25%,transparent)!important}
+.gear-grid .gear-slot.equipped[data-rarity="Zwykły"]{--q:#27bb67;--q-soft:#9af7ad}
+.gear-grid .gear-slot.equipped[data-rarity="Rzadki"]{--q:#9b60ef;--q-soft:#dab5ff}
+.gear-grid .gear-slot.equipped[data-rarity="Epicki"]{--q:#ec4a4a;--q-soft:#ffb0a2}
+.gear-grid .gear-slot.equipped[data-rarity="Legendarny"]{--q:#e6ad33;--q-soft:#fff0a1}
+.gear-grid .gear-slot.equipped::before{content:"";position:absolute;inset:2px;z-index:0;pointer-events:none;opacity:.9;background:linear-gradient(var(--q-soft),var(--q-soft)) left top/9px 1px no-repeat,linear-gradient(var(--q-soft),var(--q-soft)) left top/1px 9px no-repeat,linear-gradient(var(--q-soft),var(--q-soft)) right top/9px 1px no-repeat,linear-gradient(var(--q-soft),var(--q-soft)) right top/1px 9px no-repeat,linear-gradient(var(--q-soft),var(--q-soft)) left bottom/9px 1px no-repeat,linear-gradient(var(--q-soft),var(--q-soft)) left bottom/1px 9px no-repeat,linear-gradient(var(--q-soft),var(--q-soft)) right bottom/9px 1px no-repeat,linear-gradient(var(--q-soft),var(--q-soft)) right bottom/1px 9px no-repeat,linear-gradient(var(--q-soft),var(--q-soft)) right bottom/9px 1px no-repeat,linear-gradient(var(--q-soft),var(--q-soft)) right bottom/1px 9px no-repeat}
+.gear-grid .gear-slot.equipped > *{position:relative;z-index:2}
+.gear-grid .gear-slot.equipped[data-upgrade="6"]{--u:rgba(23,129,63,.55);--shine:#58f68a}
+.gear-grid .gear-slot.equipped[data-upgrade="7"]{--u:rgba(111,47,177,.62);--shine:#c38bff}
+.gear-grid .gear-slot.equipped[data-upgrade="8"]{--u:rgba(174,37,44,.61);--shine:#ff7a78}
+.gear-grid .gear-slot.equipped[data-upgrade="9"]{--u:rgba(190,129,20,.62);--shine:#ffe37b}
+.gear-grid .gear-slot.equipped:is([data-upgrade="6"],[data-upgrade="7"],[data-upgrade="8"],[data-upgrade="9"]){animation:devils-item-aura 2.8s ease-in-out infinite}
+.gear-grid .gear-slot.equipped:is([data-upgrade="6"],[data-upgrade="7"],[data-upgrade="8"],[data-upgrade="9"])::after{content:"";position:absolute;inset:-65% -120%;z-index:1;pointer-events:none;background:linear-gradient(110deg,transparent 42%,rgba(255,255,255,.04) 47%,color-mix(in srgb,var(--shine) 45%,transparent) 50%,rgba(255,255,255,.08) 53%,transparent 58%);transform:translateX(-65%) rotate(8deg);animation:devils-item-sweep 3.6s ease-in-out infinite}
+.gear-grid .gear-slot.equipped:hover{box-shadow:inset 0 0 0 1px #fff6cc,0 0 12px var(--q)!important}
+@media(prefers-reduced-motion:reduce){.gear-grid .gear-slot.equipped{animation:none!important}.gear-grid .gear-slot.equipped::after{animation:none!important;display:none}}
+</style>
+
+<style id="devils-bag-fixed-height-v2">
+/* Stała wysokość inwentarza: nie zmienia się przy dodawaniu statystyk. */
+@media (min-width:1301px){
+ .bag-panel{display:flex;flex-direction:column;height:790px!important;min-height:0}
+ .bag-panel .tabs{flex:none;padding-bottom:9px}
+ .bag-panel .bag-grid{flex:1 1 auto;min-height:0;max-height:none!important;height:auto!important;overflow-y:auto;overflow-x:hidden;grid-template-rows:repeat(12,minmax(0,1fr))!important;align-content:stretch!important}
+ .bag-panel .bag-grid .item{aspect-ratio:auto!important;min-height:0!important}
+ .bag-panel .bag-actions{flex:none;margin-top:auto}
+}
+</style>
+<style id="devils-catalog-images-v18">
+.gear-grid .gear-slot.equipped .symbol{display:flex;align-items:center;justify-content:center;width:100%;min-height:24px;max-height:70%;flex:1}
+.gear-grid .gear-slot.equipped .gear-item-image{display:block;width:100%;height:100%;max-height:76px;object-fit:contain;pointer-events:none}
+.gear-grid .gear-slot.equipped.weapon .gear-item-image,.gear-grid .gear-slot.equipped.armor .gear-item-image{max-height:76px}
+</style>
+<style id="devils-gear-icons-only-v19">
+/* Wyposażone sloty: tylko grafika, bez etykiety; puste sloty nadal opisane. */
+.gear-grid .gear-slot.equipped{gap:0!important;padding:2px!important}
+.gear-grid .gear-slot.equipped .gear-item-name{display:none!important}
+.gear-grid .gear-slot.equipped .symbol{width:100%!important;height:100%!important;min-height:0!important;max-height:none!important;flex:1 1 auto!important;font-size:27px!important}
+.gear-grid .gear-slot.equipped .gear-item-image{width:100%!important;height:100%!important;max-height:none!important;object-fit:contain!important}
+/* Rdzeń dwukrotnie większy od zwykłego slotu; bez zmiany innych pozycji. */
+.gear-grid .gear-slot.core{width:94px!important;height:94px!important;left:17%!important;top:86%!important}
+.gear-grid .gear-slot.core.equipped .symbol{font-size:46px!important}
+.gear-grid .gear-slot.core.empty .gear-item-name{font-size:12px!important}
+</style>
+<style id="devils-equipped-icons-crisp-v20">
+/* Poprzedni styl .gear-slot .symbol nakładał grayscale(.4) i opacity(.8)
+   również na obrazki PNG, przez co wyglądały na wyblakłe. */
+.gear-grid .gear-slot.equipped .symbol{
+  filter:none!important;
+  opacity:1!important;
+}
+.gear-grid .gear-slot.equipped .gear-item-image{
+  filter:none!important;
+  opacity:1!important;
+  image-rendering:auto;
+  object-fit:contain!important;
+  object-position:center!important;
+}
+/* Puste pola zachowują swój dyskretny wygląd. */
+</style>
+<style id="devils-item-context-style">
+#devilsItemContext{position:fixed;z-index:1000000;min-width:176px;max-width:min(260px,90vw);padding:6px;background:#17110f;border:1px solid #98713b;box-shadow:0 12px 28px #000c, inset 0 0 0 1px #36271b;color:#f1d39a;font:14px Georgia,serif}
+#devilsItemContext[hidden]{display:none!important}
+#devilsItemContext .context-title{font-size:12px;color:#d9b97d;padding:7px 9px 9px;border-bottom:1px solid #614729;overflow-wrap:anywhere}
+#devilsItemContext button{display:block;width:100%;background:transparent;color:#f4dfb1;border:0;text-align:left;padding:10px 12px;font:14px Georgia,serif;cursor:pointer}
+#devilsItemContext button:hover,#devilsItemContext button:focus-visible{background:#47351c;outline:1px solid #a17a3d}
+#devilsItemContext button.danger{color:#f1a19c}
+#devilsItemContext button.danger:hover{background:#4c2020}
+</style>
+<style id="devils-stacking-4000">.bag-grid .item .devils-stack-count{position:absolute;right:2px;bottom:2px;z-index:5;display:block;max-width:none;overflow:visible;padding:2px 4px;background:#090b0de8;border:1px solid #b99849;border-radius:3px;color:#f7e2a2;font:700 11px Arial,sans-serif;line-height:1;pointer-events:none;text-shadow:0 1px 2px #000}.bag-grid .item .item-image{pointer-events:none}</style><style id="devils-stack-visual-fix-v2">
+/* Ikony zachowują oryginalne proporcje, niezależnie od wielkości stosu. */
+.bag-panel .bag-grid .item.filled{position:relative!important}
+.bag-panel .bag-grid .item.filled .item-image{
+ position:absolute!important;inset:3px!important;
+ display:block!important;width:calc(100% - 6px)!important;height:calc(100% - 6px)!important;
+ min-width:0!important;min-height:0!important;max-width:none!important;max-height:none!important;
+ margin:0!important;padding:0!important;object-fit:contain!important;object-position:center!important;
+ flex:none!important;align-self:auto!important;transform:none!important;
+}
+/* Licznik w lewym dolnym rogu, bez x, mały i czytelny. */
+.bag-panel .bag-grid .item.filled .devils-stack-count{
+ position:absolute!important;left:2px!important;bottom:1px!important;right:auto!important;top:auto!important;
+ display:block!important;width:auto!important;max-width:calc(100% - 4px)!important;
+ margin:0!important;padding:0 2px!important;border:0!important;border-radius:0!important;
+ background:rgba(0,0,0,.72)!important;color:#fff2b8!important;
+ font:700 10px/1.15 Arial,sans-serif!important;letter-spacing:0!important;
+ white-space:nowrap!important;overflow:visible!important;text-align:left!important;
+ text-shadow:0 1px 2px #000,1px 0 2px #000!important;pointer-events:none!important;z-index:7!important;
+}
+</style></head>
 <body data-devils-page="ekwipunek">
 
 <main class="main"><div class="status" id="heroStatus">Wczytywanie ekwipunku...</div><div class="layout">
-<section class="panel"><div class="panel-head">EKWIPUNEK</div><div class="panel-sub" id="gearCountLeft">0 / 9 slotów założonych</div><div class="gear-stage"><div class="gear-grid" id="gearGrid"></div></div><div class="gear-footer"><button class="active" type="button">Zestaw główny</button><button type="button" title="Dostępne w przyszłości" onclick="showMessage('Zestaw PvP dodamy później.')">Zestaw PvP</button></div><div class="gear-hint">Kliknij założony przedmiot, aby go zdjąć. Testowe przedmioty można założyć ponownie przyciskiem poniżej.<br><button type="button" onclick="restoreDemoGear()">⚔️ Załóż zestaw testowy</button></div></section>
+<section class="panel"><div class="panel-head">EKWIPUNEK</div><div class="panel-sub" id="gearCountLeft">0 / 9 slotów założonych</div><div class="gear-stage"><div class="gear-grid" id="gearGrid"></div></div><div class="gear-footer"><button id="mainSetButton" class="active" onclick="switchSet('main')">Zestaw główny</button><button id="pvpSetButton" onclick="switchSet('pvp')">Zestaw PvP</button></div><div class="look-separate"><div id="devilsGearPreview"></div></div></section>
 <section class="panel"><div class="panel-head">STATYSTYKI EKWIPUNKU</div><div class="panel-sub" id="gearCountCenter">0 / 9 slotów założonych</div><div class="stats-body"><div class="stat-section"><h3>OBRAŻENIA I OBRONA</h3><div class="stat-line"><span>Obrażenia broni</span><b id="gearDamage">—</b></div><div class="stat-line"><span>Magiczne obrażenia broni</span><b id="gearMagic">—</b></div><div class="stat-line"><span>Obrona</span><b id="gearDefense">—</b></div><div class="stat-line"><span>Szansa na trafienie krytyczne</span><b id="gearCrit">—</b></div><div class="stat-line"><span>Blok</span><b id="gearBlock">—</b></div></div><div class="stat-section"><h3>SZYBKOŚCI</h3><div class="stat-line"><span>Szybkość ataku</span><b id="gearSpeed">—</b></div><div class="stat-line"><span>Szybkość ruchu</span><b>—</b></div><div class="stat-line"><span>Szybkość zaklęć</span><b>—</b></div></div><div class="stat-section"><h3>ATRYBUTY POSTACI</h3><div id="attributes"></div></div><div class="stat-section"><h3>ODPORNOŚCI</h3><div class="stat-empty">Odporności dodamy podczas rozbudowy systemu przedmiotów.</div></div><div class="stat-section"><h3>POZOSTAŁE</h3><div class="stat-empty">Miejsce na przyszłe premie ekwipunku.</div></div></div></section>
-<section class="panel bag-panel"><div class="panel-head">INWENTARZ</div><div class="tabs" id="tabs"></div><div class="bag-info"><span id="bagCount">Przedmioty: 0 / 400</span><span id="pageCount">Zakładka 1 / 4</span></div><div class="bag-grid" id="bagGrid"></div><div class="details" id="details">Kliknij przedmiot, aby zobaczyć jego nazwę i numer miejsca.</div><div class="bag-actions"><button onclick="sortPreview()">Sortuj</button><button onclick="toggleSelectMode()" id="selectButton">Zaznacz</button><button onclick="showMessage('Blokowanie przedmiotów dodamy później.')">Zablokuj</button></div></section>
+<section class="panel bag-panel"><div class="panel-head">INWENTARZ</div><div class="tabs" id="tabs"></div><div class="bag-grid" id="bagGrid"></div><div class="bag-actions"><button onclick="sortPreview()">Sortuj</button><button onclick="toggleSelectMode()" id="selectButton">Zaznacz</button><button onclick="showMessage('Blokowanie przedmiotów dodamy później.')">Zablokuj</button></div></section>
 </div><p class="notice" id="message" role="status"></p></main>
 <script>
 const loggedUser=sessionStorage.getItem('idleLoggedUser');
-const slotRaw=sessionStorage.getItem('idleActiveSlot');
-const activeSlot=slotRaw===null?NaN:Number(slotRaw);
-if(!loggedUser){window.location.replace('login.html')}
-else if(!Number.isInteger(activeSlot)||activeSlot<0||activeSlot>4){window.location.replace('postacie.html')}
+const rawSlot=sessionStorage.getItem('idleActiveSlot');
+const activeSlot=rawSlot===null?NaN:Number(rawSlot);
+if(!loggedUser)location.replace('login.html');
+else if(!Number.isInteger(activeSlot)||activeSlot<0||activeSlot>4)location.replace('postacie.html');
 const statsNames=['Siła','Inteligencja','Szybkość','Wytrzymałość','Energia'];
-const gearSlots=[['weapon','⚔️','Broń'],['helmet','🪖','Hełm'],['armor','🧥','Zbroja'],['gloves','🧤','Rękawice'],['pants','👖','Spodnie'],['boots','🥾','Buty'],['necklace','📿','Naszyjnik'],['ring','💍','Pierścień'],['core','🔮','Rdzeń']];
-const DEMO_GEAR={
- weapon:{name:'Miecz Strażnika',icon:'⚔️',damage:28,stats:{'Siła':3}},
- helmet:{name:'Żelazny Hełm',icon:'🪖',defense:12,stats:{'Wytrzymałość':2}},
- armor:{name:'Zbroja Wędrowca',icon:'🧥',defense:35,stats:{'Wytrzymałość':4}},
- gloves:{name:'Rękawice Łowcy',icon:'🧤',defense:7,crit:3,stats:{'Szybkość':2}},
- pants:{name:'Spodnie Strażnika',icon:'👖',defense:14,stats:{'Wytrzymałość':1}},
- boots:{name:'Buty Tropiciela',icon:'🥾',defense:8,speed:5,stats:{'Szybkość':2}},
- necklace:{name:'Naszyjnik Many',icon:'📿',magic:12,stats:{'Inteligencja':3}},
- ring:{name:'Pierścień Siły',icon:'💍',crit:2,stats:{'Siła':2}},
- core:null
-};
+const gearSlots=[['weapon','⚔️','Broń'],['helmet','🪖','Kaptur / hełm'],['armor','🧥','Zbroja'],['gloves','🧤','Rękawice'],['pants','👖','Spodnie'],['boots','🥾','Buty'],['necklace','📿','Naszyjnik'],['ring','💍','Pierścień'],['core','🔮','Rdzeń'],['shield','🛡️','Tarcza']];
+const DEMO_NAMES=new Set(['Miecz Strażnika','Żelazny Hełm','Zbroja Wędrowca','Rękawice Łowcy','Spodnie Strażnika','Buty Tropiciela','Naszyjnik Many','Pierścień Siły']);
+const STARTER=[
+ {id:'zbroja_lowcy',defense:14,stats:{'Wytrzymałość':2},visualId:'mistyczna'},
+ {id:'ostry_miecz',damage:12,stats:{'Siła':1}},
+ {id:'buty_lowcy',defense:4,speed:2},
+ {id:'kaptur_lowcy',defense:6},
+ {id:'tarcza_ze_skory',defense:8,block:3},
+ {id:'rekawice_lowcy'},
+ {id:'spodnie_lowcy'},
+ {id:'naszyjnik_lowcy'},
+ {id:'pierscien_lowcy'}
+];
+function starterItem(entry){return window.DevilsItems?.create(entry.id,entry)||entry;}
 const GEAR_KEY='idleDemoEquipment_'+loggedUser+'_'+activeSlot;
-let equipment={};
-function saveGear(){localStorage.setItem(GEAR_KEY,JSON.stringify(equipment))}
-function loadGear(){
- try{const stored=localStorage.getItem(GEAR_KEY);equipment=stored?JSON.parse(stored):structuredClone(DEMO_GEAR)}catch(e){equipment=structuredClone(DEMO_GEAR)}
- if(!equipment||typeof equipment!=='object'||Array.isArray(equipment))equipment=structuredClone(DEMO_GEAR);if(equipment.core?.name==='Rdzeń Energii'&&equipment.core.type!=='energy_core')delete equipment.core;
- saveGear();renderGear();renderGearStats();renderAttributes();
+const PVP_KEY=GEAR_KEY+'_pvp';
+const QUALITY_GIFT_KEY='devilsQualityGift_v1_'+loggedUser+'_'+activeSlot;
+const STARTER_KEY='devilsStarterChest_v1_'+loggedUser+'_'+activeSlot;
+const BAG_PAGES=6, BAG_PER_PAGE=60, BAG_CAPACITY=360;
+let equipment={},inventory=[],hero=null,tab=0,selectedIndex=null,selectMode=false,previewOrder=null,activeSet='main';
+const BAG_COLS=5;
+let tabHoverTimer=null,tabHoverStart=0,tabHoverTarget=-1,draggingIndex=null;
+function itemHeight(item){
+ if(!item||typeof item!=='object')return 1;
+ const name=String(item.name||'').toLowerCase();
+ const type=String(item.type||'').toLowerCase();
+ if(/wielki miecz|miecz dwuręcz|miecz dwurecz|greatsword|two.hand|2h sword/.test(name+' '+type))return 3;
+ if(/sztylet|dagger/.test(name+' '+type))return 1;
+ if(/zbroj|pancerz|miecz|łuk|luk|kusz|kostur|staff|staf/.test(name+' '+type))return 2;
+ if(item.slot==='armor')return 2;
+ if(item.slot==='weapon' && !/sztylet/.test(name))return 2;
+ return 1;
 }
-function restoreDemoGear(){equipment=structuredClone(DEMO_GEAR);saveGear();renderGear();renderGearStats();renderAttributes();showMessage('Założono 9 testowych przedmiotów.')}
-function unequipGear(key){if(!equipment[key])return;const name=equipment[key].name;if(key==='core'&&equipment[key].type==='energy_core'){const pos=inventory.findIndex(x=>!x);const idx=pos<0?inventory.length:pos;if(idx>=400)return showMessage('Brak miejsca w inwentarzu.');inventory[idx]=equipment[key];saveInventory()}delete equipment[key];saveGear();renderGear();renderGearStats();renderAttributes();renderBag();showMessage('Zdjęto: '+name+'. Aby ponownie założyć zestaw, użyj przycisku pod wyposażeniem.')}
-function renderGearStats(){
- const items=Object.values(equipment).filter(Boolean);
- const count=items.length;
- for(const id of ['gearCountLeft','gearCountCenter'])document.getElementById(id).textContent=count+' / 9 slotów założonych';
- const sum=key=>items.reduce((total,item)=>total+(Number(item[key])||0),0);
- for(const [id,key,suffix] of [['gearDamage','damage',''],['gearMagic','magic',''],['gearDefense','defense',''],['gearCrit','crit','%'],['gearBlock','block','%'],['gearSpeed','speed','%']]){
-  const value=sum(key);document.getElementById(id).textContent=value?(suffix?'+'+value+suffix:String(value)):'—';
+function pageOf(i){return Math.floor(i/BAG_PER_PAGE)}
+function footprints(arr=inventory){
+ const occupied=new Map(),anchors=new Map();
+ for(let i=0;i<BAG_CAPACITY;i++){
+  const item=arr[i];if(!item)continue;
+  const h=itemHeight(item), cells=[];
+  for(let row=0;row<h;row++){
+   const cell=i+row*BAG_COLS;
+   if(cell>=BAG_CAPACITY||pageOf(cell)!==pageOf(i)){cells.length=0;break}
+   cells.push(cell);
+  }
+  anchors.set(i,cells);
+  for(const cell of cells)if(!occupied.has(cell))occupied.set(cell,i);
  }
+ return {occupied,anchors};
 }
-let inventory=[];let hero=null;let tab=0;let selectedIndex=null;let selectMode=false;let previewOrder=null;
-function showMessage(message){document.getElementById('message').textContent=message}
-function goTo(page){if(page==='postacie.html')sessionStorage.removeItem('idleActiveSlot');window.location.href=page}
-function toggleMenu(){const closed=document.getElementById('sidebar').classList.toggle('closed');document.body.classList.toggle('menu-closed',closed);localStorage.setItem('idleMenuClosed',closed?'1':'0')}
-if(localStorage.getItem('idleMenuClosed')==='1'){document.getElementById('sidebar').classList.add('closed');document.body.classList.add('menu-closed')}
-function loadData(){try{const slots=JSON.parse(localStorage.getItem('idleSlots_'+loggedUser));const data=Array.isArray(slots)?slots[activeSlot]:null;if(!data||!data.hero){document.getElementById('heroStatus').textContent='Nie znaleziono zapisanej postaci w tym slocie.';return}hero=data.hero;inventory=Array.isArray(data.inventory)?data.inventory:[];loadGear();document.getElementById('heroStatus').textContent='Postać: '+(hero.name||hero.characterClass||'Bohater')+' · Poziom '+(hero.level??1);renderAttributes();renderBag()}catch(e){console.error(e);document.getElementById('heroStatus').textContent='Nie udało się odczytać ekwipunku.'}}
+// Naprawa układu po dodawaniu przedmiotów przez GM / starsze zapisy.
+// Kotwice przedmiotów pozostają w tych samych polach, o ile nie nachodzą
+// na zajęte już kratki. Kolizje przenosimy do pierwszego wolnego obszaru.
+function repairBagFootprints(arr){
+ const clean=Array(Math.max(BAG_CAPACITY,arr.length)).fill(null);
+ const pending=[];
+ let moved=0;
+ const canPlace=(item,index)=>{
+  const height=itemHeight(item),page=pageOf(index);
+  for(let row=0;row<height;row++){
+   const at=index+row*BAG_COLS;
+   if(at>=BAG_CAPACITY||pageOf(at)!==page||clean[at])return false;
+   if(used.has(at))return false;
+  }
+  return true;
+ };
+ const used=new Set();
+ const occupy=(item,index)=>{
+  clean[index]=item;
+  for(let row=0;row<itemHeight(item);row++)used.add(index+row*BAG_COLS);
+ };
+ for(let i=0;i<arr.length;i++){
+  const item=arr[i];if(!item)continue;
+  if(i<BAG_CAPACITY&&canPlace(item,i))occupy(item,i);
+  else pending.push({item,original:i});
+ }
+ for(const {item,original} of pending){
+  let at=-1;
+  for(let i=0;i<BAG_CAPACITY;i++)if(canPlace(item,i)){at=i;break}
+  if(at<0)return {ok:false,changed:false,items:arr,unplaced:pending.length};
+  occupy(item,at);if(at!==original)moved++;
+ }
+ return {ok:true,changed:moved>0,items:clean,moved};
+}
+function fitsAt(arr,item,destination,ignore=new Set()){
+ const h=itemHeight(item), col=destination%BAG_COLS, page=pageOf(destination);
+ for(let r=0;r<h;r++){
+  const at=destination+r*BAG_COLS;
+  if(at>=BAG_CAPACITY||pageOf(at)!==page)return false;
+  if(arr[at]&&!ignore.has(at))return false;
+ }
+ const occupied=footprints(arr).occupied;
+ for(let r=0;r<h;r++){
+  const at=destination+r*BAG_COLS,owner=occupied.get(at);
+  if(owner!==undefined&&!ignore.has(owner))return false;
+ }
+ return true;
+}
+function findSpace(item,arr=inventory,page=null,ignore=new Set()){
+ const begin=page===null?0:page*BAG_PER_PAGE,end=page===null?BAG_CAPACITY:begin+BAG_PER_PAGE;
+ for(let i=begin;i<end;i++)if(fitsAt(arr,item,i,ignore))return i;
+ return -1;
+}
+function cancelTabHover(){
+ if(tabHoverTimer!==null)clearTimeout(tabHoverTimer);
+ tabHoverTimer=null;tabHoverTarget=-1;
+ document.querySelectorAll('.tab-loading').forEach(el=>{el.classList.remove('tab-loading');el.style.removeProperty('--tab-progress')});
+}
+function showMessage(msg){document.getElementById('message').textContent=msg}
+function readObj(key){try{const v=JSON.parse(localStorage.getItem(key)||'{}');return v&&typeof v==='object'&&!Array.isArray(v)?v:{}}catch{return {}}}
+function gearKey(){return activeSet==='pvp'?PVP_KEY:GEAR_KEY}
+function saveGear(){localStorage.setItem(gearKey(),JSON.stringify(equipment))}
+function loadGear(){equipment=readObj(gearKey());renderGear();renderGearStats();renderAttributes();updateLook()}
+function switchSet(set){if(!['main','pvp'].includes(set)||set===activeSet)return;activeSet=set;window.DevilsActiveEquipmentSet=set;document.getElementById('mainSetButton').classList.toggle('active',set==='main');document.getElementById('pvpSetButton').classList.toggle('active',set==='pvp');loadGear();showMessage(set==='main'?'Wybrano zestaw główny.':'Wybrano zestaw PvP.')}
+function saveInventory(){const key='idleSlots_'+loggedUser;let slots;try{slots=JSON.parse(localStorage.getItem(key)||'[]')}catch{return}if(!Array.isArray(slots)||!slots[activeSlot])return;slots[activeSlot].inventory=inventory;localStorage.setItem(key,JSON.stringify(slots))}
+// Stackowanie: 4000 sztuk. Tylko przedmioty bez indywidualnych statystyk i ulepszeń.
+const STACK_LIMIT=4000;
+const STACK_TYPES=new Set(['magic_upgrader','quality_upgrader','weapon_rune','bonus_stone','quality_gift','starter_chest']);
+function stackCount(item){return Math.max(1,Math.floor(Number(item?.quantity??item?.count??1)||1))}
+function stackKey(item){
+ if(!item||typeof item!=='object')return null;
+ const resolved=window.DevilsItems?.resolve(item)||item;
+ const type=String(resolved.type||'');
+ const category=String(resolved.category||'');
+ if(resolved.slot||resolved.upgradeLevel||resolved.upgrade||resolved.plus||resolved.runes||resolved.rune||resolved.bonuses||resolved.extraBonuses||resolved.stats)return null;
+ if(!STACK_TYPES.has(type)&&category!=='material'&&category!=='chest')return null;
+ const identity={id:resolved.id||resolved.catalogId||resolved.itemId||'',name:resolved.name||'',type,rarity:resolved.rarity||'',targetRarity:resolved.targetRarity||'',runeKind:resolved.runeKind||'',runeLevel:resolved.runeLevel??'',bonusTier:resolved.bonusTier||''};
+ return JSON.stringify(identity);
+}
+function setStackCount(item,count){delete item.count;item.quantity=count}
+function mergeStacks(arr=inventory){
+ let changed=false;
+ for(let i=0;i<arr.length;i++){
+  const item=arr[i],key=stackKey(item);if(!key)continue;
+  let remaining=stackCount(item);
+  if(item.count!=null||item.quantity!==remaining){setStackCount(item,remaining);changed=true}
+  for(let j=0;j<i&&remaining>0;j++){
+   const target=arr[j];if(stackKey(target)!==key)continue;
+   const space=STACK_LIMIT-stackCount(target);if(space<=0)continue;
+   const moved=Math.min(space,remaining);setStackCount(target,stackCount(target)+moved);remaining-=moved;changed=true;
+  }
+  if(!remaining){arr[i]=null;changed=true}
+  else if(remaining>STACK_LIMIT){setStackCount(item,STACK_LIMIT);let rest=remaining-STACK_LIMIT;
+   while(rest>0){const piece={...item,quantity:Math.min(STACK_LIMIT,rest)};const at=findSpace(piece,arr);if(at<0){setStackCount(item,STACK_LIMIT+rest);break}arr[at]=piece;rest-=piece.quantity}changed=true;
+  }else if(remaining!==stackCount(item)){setStackCount(item,remaining);changed=true}
+ }
+ return changed;
+}
+function addStackable(item){
+ const key=stackKey(item);if(!key)return false;
+ const draft=inventory.slice();let remaining=stackCount(item);
+ for(let i=0;i<draft.length&&remaining>0;i++){
+  if(stackKey(draft[i])!==key)continue;
+  const room=STACK_LIMIT-stackCount(draft[i]);if(room<=0)continue;
+  const n=Math.min(room,remaining);draft[i]={...draft[i],quantity:stackCount(draft[i])+n};remaining-=n;
+ }
+ while(remaining>0){const part={...item,quantity:Math.min(STACK_LIMIT,remaining)};const index=findSpace(part,draft);if(index<0)return false;draft[index]=part;remaining-=part.quantity}
+ inventory=draft;return true;
+}
+function freeIndex(item={}){return findSpace(item)}
+function addToInventory(item){if(stackKey(item))return addStackable(item);const i=freeIndex(item);if(i<0)return false;inventory[i]=item;return true}
+function giveStarterChest(){if(localStorage.getItem(STARTER_KEY))return;const chest={name:'Skrzynka startowa',icon:'🎁',type:'starter_chest',description:'Otwórz dwuklikiem. Zawiera 9 przedmiotów Łowcy.'};if(addToInventory(chest)){saveInventory();localStorage.setItem(STARTER_KEY,'1');showMessage('Otrzymano Skrzynkę startową! Otwórz ją podwójnym kliknięciem.')}}
+function openChest(index){if(inventory[index]?.type!=='starter_chest')return;const draft=inventory.slice();if(stackCount(draft[index])>1)setStackCount(draft[index],stackCount(draft[index])-1);else draft[index]=null;const placements=[];for(const entry of STARTER){const item=starterItem(entry);const i=findSpace(item,draft);if(i<0){showMessage('Brak miejsca na zawartość skrzynki (duże przedmioty zajmują kilka pól).');return}draft[i]=JSON.parse(JSON.stringify(item));placements.push(i)}inventory=draft;mergeStacks(inventory);saveInventory();renderBag();showMessage('Otworzono skrzynkę: otrzymano 9 przedmiotów Łowcy!')}
+function detectSlot(item){if(!item||typeof item!=='object')return null;if(item.slot&&gearSlots.some(x=>x[0]===item.slot))return item.slot;if(item.type==='energy_core')return 'core';const n=String(item.name||'').toLowerCase();if(/tarcz/.test(n))return 'shield';if(/miecz|sztylet|kostur|łuk|luk|broń|bron/.test(n))return 'weapon';if(/kaptur|hełm|helm/.test(n))return 'helmet';if(/zbroj|pancerz/.test(n))return 'armor';if(/buty|trzewik/.test(n))return 'boots';if(/rękawic|rekawic/.test(n))return 'gloves';if(/spodnie/.test(n))return 'pants';if(/naszyjnik/.test(n))return 'necklace';if(/pierścień|pierscien/.test(n))return 'ring';if(/rdzeń|rdzen/.test(n))return 'core';return null}
+function equipFromBag(index,target){const item=inventory[index];if(!item||typeof item!=='object')return;const slot=detectSlot(item);if(!slot){showMessage('Tego przedmiotu nie można założyć.');return}if(target&&target!==slot){showMessage('Niepasujący slot: '+item.name+'.');return}const previous=equipment[slot]||null;if(previous&&!fitsAt(inventory,previous,index,new Set([index]))){const alternative=findSpace(previous,inventory,null,new Set([index]));if(alternative<0){showMessage('Brak miejsca na zdjęty przedmiot.');return}inventory[index]=null;inventory[alternative]=previous}else inventory[index]=previous;equipment[slot]=item;saveGear();saveInventory();selectedIndex=null;refresh();showMessage('Założono: '+item.name)}
+function unequipGear(slot){const item=equipment[slot];if(!item)return;const i=freeIndex(item);if(i<0){showMessage('Inwentarz jest pełny.');return}inventory[i]=item;delete equipment[slot];saveGear();saveInventory();refresh();showMessage('Zdjęto: '+item.name)}
+// Obraz rdzenia zawsze pochodzi z katalogu, nawet gdy stary zapis zawiera emoji lub nieaktualna sciezke.
+function devilsItemImage(item){
+ if(!item)return '';
+ // Rdzenie rozpoznajemy także po nazwie z poziomem (+0, +1...) i starych identyfikatorach.
+ const normalize=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+ const raw=[item.name,item.id,item.catalogId,item.itemId,item.type==='energy_core'?'rdzen '+(item.element||item.elementType||''):''].map(normalize).join(' ');
+ const elements=[['blyskaw','blyskawicy'],['ciemnos','ciemnosci'],['ogni','ognia'],['wod','wody'],['ziem','ziemi'],['wiatr','wiatru'],['swiatl','swiatla']];
+ if(/rdzen|energy_core/.test(raw)||item.slot==='core'){
+   const found=elements.find(([part])=>raw.includes(part));
+   if(found)return 'itemy/rdzen_'+found[1]+'.png';
+ }
+ const catalog=window.DevilsItems?.resolve?.(item);
+ return item.image||catalog?.image||'';
+}
+function updateLook(){if(window.DevilsCharacterLook?.update)window.DevilsCharacterLook.update()}
+function refresh(){renderGear();renderGearStats();renderAttributes();renderBag();updateLook()}
 function renderGear(){
- const grid=document.getElementById('gearGrid');grid.innerHTML='';
- gearSlots.forEach(([cls,icon,label])=>{
-  const item=equipment[cls];
-  const el=document.createElement('button');el.type='button';el.className='gear-slot '+cls+(item?' equipped':'');
-  el.title=item?item.name+' — kliknij, aby zdjąć':label+' — pusty slot';
-  const symbol=document.createElement('div');symbol.className='symbol';symbol.textContent=item?.icon||icon;
-  const text=document.createElement('span');text.className='gear-item-name';text.textContent=item?.name||label;
-  el.append(symbol,text);
-  if(item)el.onclick=()=>unequipGear(cls);
+ const grid=document.getElementById('gearGrid');
+ grid.querySelectorAll('.gear-slot').forEach(el=>el.remove());
+ gearSlots.forEach(([key,icon,label])=>{
+  const item=equipment[key];
+  const el=document.createElement('button');el.type='button';
+  el.className='gear-slot '+key+(item?' equipped':' empty');
+  if(item){el.dataset.rarity=itemRarity(item);el.dataset.upgrade=String(Math.max(0,Math.min(9,Number(item.upgradeLevel??item.upgrade??item.plus??0)||0)))}
+  el.title=item?item.name+' — kliknij, aby zdjąć':label+' — upuść pasujący przedmiot';
+  if(item)window.DevilsTooltips?.bind(el,item);
+  if(item){
+   const symbol=document.createElement('div');symbol.className='symbol';if(devilsItemImage(item)){const img=document.createElement('img');img.src=devilsItemImage(item);img.alt='';img.className='gear-item-image';img.onerror=()=>{if(!img.dataset.coreFallback && /rdzen_blyskawicy\.png/i.test(img.src)){img.dataset.coreFallback='1';img.src='rdzen_blyskawicy.png'}};symbol.appendChild(img)}else symbol.textContent=item.icon||icon;
+   el.appendChild(symbol);el.setAttribute('aria-label',item.name||label);el.onclick=()=>unequipGear(key);
+  }else{
+   const text=document.createElement('span');text.className='gear-item-name';
+   text.textContent=({weapon:'Broń',helmet:'Hełm',armor:'Zbroja',gloves:'Rękawice',pants:'Spodnie',boots:'Buty',necklace:'Naszyjnik',ring:'Pierścień',core:'Rdzeń',shield:'Tarcza'})[key]||label;
+   el.appendChild(text);
+  }
+  el.addEventListener('dragover',e=>{if(e.dataTransfer.types.includes('text/plain')){e.preventDefault();el.classList.add('drag-over')}});
+  el.addEventListener('dragleave',()=>el.classList.remove('drag-over'));
+  el.addEventListener('drop',e=>{e.preventDefault();el.classList.remove('drag-over');const index=Number(e.dataTransfer.getData('text/plain'));if(Number.isInteger(index)&&index>=0&&index<BAG_CAPACITY){if(!useUpgrader(index,null,key))equipFromBag(index,key)}});
   grid.appendChild(el);
  });
 }
-function renderAttributes(){
- const root=document.getElementById('attributes');root.innerHTML='';
- statsNames.forEach(name=>{
-  const base=Number(hero?.stats?.[name])||0;
-  const bonus=Object.values(equipment).filter(Boolean).reduce((sum,item)=>sum+(Number(item.stats?.[name])||0),0);
-  const row=document.createElement('div');row.className='stat-line';
-  const label=document.createElement('span');label.textContent=name;
-  const val=document.createElement('b');val.textContent=(hero?base:'—')+(bonus?' (+'+bonus+' sprzęt)':'');
-  row.append(label,val);root.appendChild(row);
- });
+function renderGearStats(){const items=Object.values(equipment).filter(Boolean);for(const id of ['gearCountLeft','gearCountCenter'])document.getElementById(id).textContent=items.length+' / 10 slotów założonych';const sum=k=>items.reduce((n,it)=>n+(Number(it[k])||0)+(window.DevilsRunes?.total(it,({crit:'critical',defense:'defense',damage:'weaponDamage',block:'block',speed:'attackSpeed'})[k]||k)||0),0);for(const [id,k,suffix] of [['gearDamage','damage',''],['gearMagic','magic',''],['gearDefense','defense',''],['gearCrit','crit','%'],['gearBlock','block','%'],['gearSpeed','speed','%']]){const v=sum(k);document.getElementById(id).textContent=v?(suffix?'+'+v+suffix:String(v)):'—'}}
+function renderAttributes(){const root=document.getElementById('attributes');root.textContent='';statsNames.forEach(name=>{const base=Number(hero?.stats?.[name])||0;const bonus=Object.values(equipment).filter(Boolean).reduce((n,it)=>n+(Number(it.stats?.[name])||0)+(window.DevilsRunes?.total(it,({'Siła':'strength','Inteligencja':'intelligence','Wytrzymałość':'vitality','Szybkość':'agility','Energia':'energy'})[name])||0),0);const row=document.createElement('div');row.className='stat-line';const label=document.createElement('span');label.textContent=name;const val=document.createElement('b');val.textContent=hero?String(base+bonus):'—';val.title='Bazowa: '+base+' | Ekwipunek: '+(bonus>=0?'+':'')+bonus;row.append(label,val);root.appendChild(row)})}
+
+const QUALITY_ORDER=['Pospolity','Zwykły','Rzadki','Epicki','Legendarny'];
+const QUALITY_TEST_IDS=['ulepszacz_magiczny','ulepszacz_jakosci_zwykly','ulepszacz_jakosci_rzadki','ulepszacz_jakosci_epicki','ulepszacz_jakosci_legendarny'];
+function catalogItem(id){return window.DevilsItems?.create(id)}
+function itemType(item){return item?.type||window.DevilsItems?.resolve(item)?.type||''}
+function itemRarity(item){return QUALITY_ORDER.includes(item?.rarity)?item.rarity:'Pospolity'}
+function toastUpgrade(success){let el=document.getElementById('devilsUpgradeToast');if(!el){el=document.createElement('div');el.id='devilsUpgradeToast';document.body.appendChild(el)}el.textContent=success?'SUKCES':'PORAŻKA';el.className=(success?'success':'failure')+' show';clearTimeout(toastUpgrade.timer);toastUpgrade.timer=setTimeout(()=>el.classList.remove('show'),2200)}
+function giveQualityGift(){if(localStorage.getItem(QUALITY_GIFT_KEY))return;const gift=catalogItem('prezent_startowy');if(gift&&addToInventory(gift)){saveInventory();localStorage.setItem(QUALITY_GIFT_KEY,'1');showMessage('Otrzymano Prezent startowy z ulepszaczami — otwórz go dwuklikiem.')}}
+function openQualityGift(index){if(itemType(inventory[index])!=='quality_gift')return;const draft=inventory.slice();if(stackCount(draft[index])>1)setStackCount(draft[index],stackCount(draft[index])-1);else draft[index]=null;for(const id of QUALITY_TEST_IDS){const item=catalogItem(id),at=findSpace(item,draft);if(at<0){showMessage('Brak miejsca na zawartość prezentu.');return}draft[at]=item}inventory=draft;mergeStacks(inventory);saveInventory();renderBag();showMessage('Otworzono prezent: 5 ulepszaczy (testowo 100% skuteczności).')}
+function useUpgrader(from,target,gearSlot=null){const reagent=inventory[from],targetItem=gearSlot?equipment[gearSlot]:inventory[target];if(!reagent||!targetItem||from===target&&!gearSlot)return false;const type=itemType(reagent);if(window.DevilsRunes?.isMaterial(reagent))return applyRuneBonus(from,target,gearSlot);if(type!=='quality_upgrader'&&type!=='magic_upgrader')return false;
+ const resolved=window.DevilsItems?.resolve(targetItem)||targetItem;
+ if(!resolved.upgradeable||resolved.slot==='core'||resolved.type==='energy_core'){showMessage('Ten przedmiot nie podlega standardowemu ulepszaniu.');toastUpgrade(false);return true}
+ if(type==='quality_upgrader'){
+  const current=itemRarity(targetItem),next=reagent.targetRarity,oldIndex=QUALITY_ORDER.indexOf(current);
+  if(QUALITY_ORDER.indexOf(next)!==oldIndex+1){showMessage('Ulepszacz '+next+' wymaga przedmiotu jakości '+QUALITY_ORDER[QUALITY_ORDER.indexOf(next)-1]+'.');toastUpgrade(false);return true}
+  targetItem.rarity=next;
+ }else{
+  const level=Math.max(0,Number(targetItem.upgradeLevel??targetItem.upgrade??targetItem.plus??0)||0),max=Number(resolved.maxUpgrade??9);
+  if(level>=max){showMessage('Osiągnięto maksymalny poziom +'+max+'.');toastUpgrade(false);return true}
+  targetItem.upgradeLevel=level+1;
+  // W przyszłości: przy niepowodzeniu zachowaj przedmiot i obniż poziom o 1.
+ }
+ const count=Number(reagent.quantity??reagent.count??1);if(count>1){if(reagent.quantity!=null)reagent.quantity=count-1;else reagent.count=count-1}else inventory[from]=null;
+ if(gearSlot)saveGear();saveInventory();refresh();toastUpgrade(true);showMessage('Ulepszenie zakończone sukcesem.');return true
 }
-function renderTabs(){const root=document.getElementById('tabs');root.innerHTML='';for(let i=0;i<4;i++){const b=document.createElement('button');b.textContent=['I','II','III','IV'][i];b.className=i===tab?'active':'';b.setAttribute('aria-label','Zakładka '+(i+1));b.onclick=()=>{tab=i;selectedIndex=null;previewOrder=null;renderBag()};root.appendChild(b)}}
-function saveInventory(){const key='idleSlots_'+loggedUser;const slots=JSON.parse(localStorage.getItem(key)||'[]');if(!slots[activeSlot])return;slots[activeSlot].inventory=inventory;localStorage.setItem(key,JSON.stringify(slots))}
+
+function applyRuneBonus(from,target,gearSlot=null){
+ const material=inventory[from],item=gearSlot?equipment[gearSlot]:inventory[target];
+ if(!window.DevilsRunes?.isMaterial(material)||!item)return false;
+ const result=window.DevilsRunes.apply(material,item);
+ if(!result.accepted){showMessage(result.message);return true;}
+ const count=Number(material.quantity??material.count??1);
+ if(count>1){if(material.quantity!=null)material.quantity=count-1;else material.count=count-1}else inventory[from]=null;
+ if(gearSlot)saveGear();saveInventory();refresh();toastUpgrade(result.success);
+ showMessage(result.message);return true;
+}
 function itemName(item){return item&&typeof item==='object'?(item.icon||'🔮')+' '+(item.name||'Przedmiot'):String(item)}
-function equipCore(){const item=inventory[selectedIndex];if(!item||typeof item!=='object'||item.type!=='energy_core')return;const previous=equipment.core;if(previous?.type==='energy_core')inventory[selectedIndex]=previous;else inventory[selectedIndex]=null;equipment.core=item;saveGear();saveInventory();renderGear();renderGearStats();renderAttributes();renderBag();showMessage('Założono '+item.name+'. Bonusy rdzenia ustalimy później.')}
-function renderBag(){renderTabs();const grid=document.getElementById('bagGrid');grid.innerHTML='';document.getElementById('bagCount').textContent='Przedmioty: '+inventory.filter(Boolean).length+' / 400';document.getElementById('pageCount').textContent='Zakładka '+(tab+1)+' / 4';const start=tab*100;const indices=previewOrder||Array.from({length:100},(_,i)=>start+i);indices.forEach(index=>{const item=inventory[index];const slot=document.createElement('button');slot.className='item'+(item?' filled':'')+(selectedIndex===index?' selected':'');slot.title=item?itemName(item)+' | Slot '+(index+1):'Pusty slot '+(index+1);slot.setAttribute('aria-label',slot.title);if(item){const text=document.createElement('span');text.textContent=itemName(item);slot.appendChild(text)}slot.onclick=()=>{selectedIndex=index;document.getElementById('details').textContent=item?'Przedmiot: '+itemName(item)+' · Miejsce '+(index+1):'Pusty slot · Miejsce '+(index+1);renderBag();if(item&&typeof item==='object'&&item.type==='energy_core'){const b=document.createElement('button');b.textContent='🔮 Załóż rdzeń';b.style.margin='8px';b.onclick=e=>{e.stopPropagation();equipCore()};document.getElementById('details').appendChild(b)}};grid.appendChild(slot)})}
-function sortPreview(){const start=tab*100;previewOrder=Array.from({length:100},(_,i)=>start+i).sort((a,b)=>{const aa=inventory[a],bb=inventory[b];if(!aa&&!bb)return a-b;if(!aa)return 1;if(!bb)return -1;return String(aa).localeCompare(String(bb),'pl')});showMessage('Posortowano widok zakładki. Zapis przedmiotów nie został zmieniony.');renderBag()}
+function selectBagItem(index){
+ selectedIndex=index;
+ document.querySelectorAll('#bagGrid .item').forEach(el=>el.classList.toggle('selected',Number(el.dataset.index)===index));
+}
+function moveBagItem(from,to){
+ if(!Number.isInteger(from)||!Number.isInteger(to)||from<0||to<0||from>=BAG_CAPACITY||to>=BAG_CAPACITY||from===to)return false;
+ const source=inventory[from];if(!source)return false;
+ to=resolveBagDropTarget(from,to);
+ if(useUpgrader(from,to))return true;
+ const map=footprints().occupied;
+ const otherAnchor=map.get(to);
+ const otherIndex=otherAnchor===undefined?to:otherAnchor;
+ const targetItem=inventory[otherIndex];
+ if(targetItem&&otherIndex!==from&&stackKey(source)&&stackKey(source)===stackKey(targetItem)){
+  const space=STACK_LIMIT-stackCount(targetItem);
+  if(space>0){const n=Math.min(space,stackCount(source));setStackCount(targetItem,stackCount(targetItem)+n);const left=stackCount(source)-n;if(left)setStackCount(source,left);else inventory[from]=null;saveInventory();selectedIndex=null;renderBag();showMessage('Połączono stosy: '+stackCount(targetItem)+' / '+STACK_LIMIT);return true}
+ }
+ const draft=inventory.slice();
+ draft[from]=null;
+ if(targetItem&&otherIndex!==from)draft[otherIndex]=null;
+ if(!fitsAt(draft,source,to)||targetItem&&otherIndex!==from&&!fitsAt(draft,targetItem,from)){
+  showMessage('Brak miejsca: przedmioty 2–3-polowe muszą mieścić się w kolumnie i nie mogą nachodzić na inne.');return false;
+ }
+ draft[to]=source;
+ if(targetItem&&otherIndex!==from)draft[from]=targetItem;
+ inventory=draft;saveInventory();selectedIndex=null;previewOrder=null;renderBag();
+ showMessage(targetItem?'Zamieniono przedmioty.':'Przeniesiono przedmiot.');return true;
+}
+function moveToPage(from,page){
+ if(!inventory[from])return;
+ const to=findSpace(inventory[from],inventory,page,new Set([from]));
+ if(to<0){showMessage('Na zakładce '+(page+1)+' brakuje miejsca.');return}
+ if(moveBagItem(from,to)){tab=page;renderBag()}
+}
+function renderTabs(){
+ const root=document.getElementById('tabs');root.textContent='';
+ for(let i=0;i<BAG_PAGES;i++){
+  const b=document.createElement('button');b.type='button';b.textContent=['I','II','III','IV','V','VI'][i];b.className=i===tab?'active':'';
+  b.title='Przytrzymaj przeciągany przedmiot nad zakładką przez 0,8 s, aby ją otworzyć';
+  b.onclick=()=>{cancelTabHover();tab=i;renderBag()};
+  b.addEventListener('dragenter',e=>{e.preventDefault();if(i===tab||tabHoverTarget===i)return;cancelTabHover();tabHoverTarget=i;tabHoverStart=Date.now();b.classList.add('tab-loading');b.style.setProperty('--tab-progress','0%');tabHoverTimer=setTimeout(()=>{tab=i;cancelTabHover();renderBag();showMessage('Zakładka '+(i+1)+' otwarta — upuść przedmiot na wybrane miejsce.')},800)});
+  b.addEventListener('dragover',e=>{e.preventDefault();e.dataTransfer.dropEffect='move';if(tabHoverTarget===i)b.style.setProperty('--tab-progress',Math.min(100,(Date.now()-tabHoverStart)/8)+'%')});
+  b.addEventListener('dragleave',e=>{if(!b.contains(e.relatedTarget))cancelTabHover()});
+  b.addEventListener('drop',e=>{e.preventDefault();cancelTabHover();const from=Number(e.dataTransfer.getData('text/plain'));moveToPage(from,i)});
+  root.appendChild(b);
+ }
+}
+function clearBagDropPreview(){document.querySelectorAll('.bag-drop-preview').forEach(el=>el.remove())}
+function bagGridMetrics(){
+ const grid=document.getElementById('bagGrid');
+ const css=getComputedStyle(grid), rect=grid.getBoundingClientRect();
+ const gapX=parseFloat(css.columnGap)||0, gapY=parseFloat(css.rowGap)||0;
+ const padX=parseFloat(css.paddingLeft)||0, padY=parseFloat(css.paddingTop)||0;
+ const width=(grid.clientWidth-padX-(parseFloat(css.paddingRight)||0)-gapX*(BAG_COLS-1))/BAG_COLS;
+ // Czytamy rzeczywiste tory CSS Grid, zamiast zakładać kwadratowe pola.
+ const rows=css.gridTemplateRows.split(' ').map(parseFloat).filter(Number.isFinite);
+ const height=rows[0]||width;
+ return {grid,rect,gapX,gapY,padX,padY,width,height};
+}
+function bagDropIndex(target,event){
+ const m=bagGridMetrics();
+ // Wybór pola wyłącznie na podstawie położenia kursora względem siatki.
+ // Dzięki temu długi przedmiot pod kursorem nie przeskakuje do swojej kotwicy.
+ const x=event.clientX-m.rect.left-m.padX;
+ const y=event.clientY-m.rect.top-m.padY+m.grid.scrollTop;
+ const col=Math.max(0,Math.min(BAG_COLS-1,Math.floor(x/(m.width+m.gapX))));
+ const row=Math.max(0,Math.min(BAG_PER_PAGE/BAG_COLS-1,Math.floor(y/(m.height+m.gapY))));
+ return tab*BAG_PER_PAGE+row*BAG_COLS+col;
+}
+function showBagDropPreview(target,index){
+ clearBagDropPreview();
+ const source=inventory[draggingIndex];if(!source)return;
+ const sourceType=itemType(source),isUpgrade=sourceType==='quality_upgrader'||sourceType==='magic_upgrader'||window.DevilsRunes?.isMaterial(source);
+ const m=bagGridMetrics(),foot=footprints();
+ let anchor=index,h=itemHeight(source),valid=false;
+ if(isUpgrade){
+  // Ulepszacz wskazuje CAŁY przedmiot docelowy, a nie jedną komórkę pod kursorem.
+  const owner=foot.occupied.get(index);
+  if(owner!==undefined&&owner!==draggingIndex&&inventory[owner]){
+   anchor=owner;h=itemHeight(inventory[owner]);valid=true;
+  }else{h=1}
+ }else{
+  const targetOwner=foot.occupied.get(index),ignored=new Set([draggingIndex]);
+  if(targetOwner!==undefined&&targetOwner!==draggingIndex)ignored.add(targetOwner);
+  const row=Math.floor((index%BAG_PER_PAGE)/BAG_COLS);
+  valid=fitsAt(inventory,source,index,ignored)&&row+h<=BAG_PER_PAGE/BAG_COLS;
+ }
+ const col=anchor%BAG_COLS,row=Math.floor((anchor%BAG_PER_PAGE)/BAG_COLS);
+ const preview=document.createElement('div');
+ preview.className='bag-drop-preview'+(valid?'':' invalid')+(isUpgrade?' upgrade-preview':'');
+ preview.style.left=(m.padX+col*(m.width+m.gapX))+'px';
+ preview.style.top=(m.padY+row*(m.height+m.gapY))+'px';
+ preview.style.width=m.width+'px';
+ preview.style.height=(m.height*h+m.gapY*(h-1))+'px';
+ m.grid.appendChild(preview);
+}
+function resolveBagDropTarget(from,to){
+ const source=inventory[from],type=itemType(source);
+ if(type==='quality_upgrader'||type==='magic_upgrader'||window.DevilsRunes?.isMaterial(source)){
+  const owner=footprints().occupied.get(to);
+  return owner===undefined?to:owner;
+ }
+ return to;
+}
+// Menu akcji przedmiotu — obsługa prawokliku bez zmiany drag & drop.
+let contextItemIndex=null;
+function closeItemContext(){const menu=document.getElementById('devilsItemContext');if(menu)menu.hidden=true;contextItemIndex=null}
+function getItemContext(){let menu=document.getElementById('devilsItemContext');if(!menu){menu=document.createElement('div');menu.id='devilsItemContext';menu.hidden=true;menu.setAttribute('role','menu');document.body.appendChild(menu)}return menu}
+function toastItemRemoved(){
+ let el=document.getElementById('devilsItemRemovedToast');
+ if(!el){el=document.createElement('div');el.id='devilsItemRemovedToast';document.body.appendChild(el)}
+ el.textContent='Pomyślnie usunięto';
+ el.className='show';
+ clearTimeout(toastItemRemoved.timer);
+ toastItemRemoved.timer=setTimeout(()=>el.classList.remove('show'),2200);
+}
+function destroyBagItem(index){
+ const item=inventory[index];if(!item)return;
+ inventory[index]=null;
+ saveInventory();selectedIndex=null;renderBag();
+ toastItemRemoved();
+}
+function showItemContext(event,index){
+ event.preventDefault();event.stopPropagation();
+ const item=inventory[index];if(!item)return;
+ closeItemContext();contextItemIndex=index;
+ const menu=getItemContext();menu.textContent='';
+ const title=document.createElement('div');title.className='context-title';title.textContent=itemName(item);menu.appendChild(title);
+ const type=itemType(item);
+ const addAction=(label,action,danger=false)=>{const btn=document.createElement('button');btn.type='button';btn.textContent=label;btn.setAttribute('role','menuitem');if(danger)btn.className='danger';btn.addEventListener('click',e=>{e.stopPropagation();closeItemContext();action()});menu.appendChild(btn)};
+ if(type==='starter_chest'||type==='quality_gift')addAction('📦 Otwórz',()=>{if(type==='starter_chest')openChest(index);else openQualityGift(index)});
+ if(window.DevilsCoreUpgrade?.isCore(item))addAction('⚡ Ulepsz',()=>window.DevilsCoreUpgrade.open(item,index));
+ addAction(stackKey(item)&&stackCount(item)>1?'✕ Zniszcz cały stos':'✕ Zniszcz',()=>destroyBagItem(index),true);
+ menu.hidden=false;
+ const width=menu.offsetWidth,height=menu.offsetHeight;
+ menu.style.left=Math.max(6,Math.min(event.clientX,window.innerWidth-width-6))+'px';
+ menu.style.top=Math.max(6,Math.min(event.clientY,window.innerHeight-height-6))+'px';
+}
+document.addEventListener('pointerdown',e=>{if(!e.target.closest('#devilsItemContext'))closeItemContext()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeItemContext()});
+document.addEventListener('scroll',closeItemContext,true);
+window.addEventListener('resize',closeItemContext);
+function renderBag(){
+ closeItemContext();clearBagDropPreview();renderTabs();
+ const grid=document.getElementById('bagGrid');grid.textContent='';
+ const start=tab*BAG_PER_PAGE,foot=footprints();
+ for(let offset=0;offset<BAG_PER_PAGE;offset++){
+  const index=start+offset,owner=foot.occupied.get(index);
+  if(owner!==undefined&&owner!==index)continue;
+  const item=inventory[index],slot=document.createElement('button');slot.type='button';slot.dataset.index=index;
+  const h=item?itemHeight(item):1;
+  slot.className='item'+(item?' filled':'')+(selectedIndex===index?' selected':'')+(h>1?' multi':'');
+  slot.style.gridColumn=String(offset%BAG_COLS+1);slot.style.gridRow=String(Math.floor(offset/BAG_COLS)+1)+(h>1?' / span '+h:'');
+  if(item){slot.dataset.rarity=itemRarity(item);const lvl=Math.max(0,Math.min(9,Number(item.upgradeLevel??item.upgrade??item.plus??0)||0));slot.dataset.upgrade=String(lvl)}
+  // Bez natywnego dymka przeglądarki — tylko własne dymki statystyk.
+  slot.setAttribute('aria-label',item?itemName(item)+(stackKey(item)?' — '+stackCount(item)+' szt.':''):'Pusty slot '+(index+1));
+  if(item)window.DevilsTooltips?.bind(slot,item);
+  if(item){
+   const image=devilsItemImage(item);const symbol=document.createElement(image?'img':'span');symbol.className=image?'item-image':'item-icon';if(image){symbol.src=image;symbol.alt='';symbol.onerror=()=>{if(!symbol.dataset.coreFallback && /rdzen_blyskawicy\.png/i.test(symbol.src)){symbol.dataset.coreFallback='1';symbol.src='rdzen_blyskawicy.png';return;}const fallback=document.createElement('span');fallback.className='item-icon';fallback.textContent=item.icon||'🔮';symbol.replaceWith(fallback)}}else symbol.textContent=item.icon||'🔮';
+   // Nazwy przedmiotów pozostają w dymkach i opisach dostępności, nie na kafelkach.
+   slot.appendChild(symbol);
+   if(stackKey(item)){
+    const counter=document.createElement('span');counter.className='devils-stack-count';counter.textContent=String(stackCount(item));counter.setAttribute('aria-label','Liczba sztuk: '+stackCount(item));slot.appendChild(counter);
+   }
+   slot.draggable=true;
+   slot.addEventListener('contextmenu',e=>showItemContext(e,index));
+   slot.addEventListener('dragstart',e=>{draggingIndex=index;e.dataTransfer.setData('text/plain',String(index));e.dataTransfer.effectAllowed='move';slot.classList.add('dragging')});
+   slot.addEventListener('dragend',()=>{clearBagDropPreview();draggingIndex=null;cancelTabHover();document.querySelectorAll('.drag-over').forEach(el=>el.classList.remove('drag-over'))});
+   slot.addEventListener('dblclick',()=>{if(item.type==='starter_chest')openChest(index);else if(itemType(item)==='quality_gift')openQualityGift(index);else if(itemType(item)!=='quality_upgrader'&&itemType(item)!=='magic_upgrader'&&!window.DevilsRunes?.isMaterial(item))equipFromBag(index)});
+  }
+  slot.addEventListener('dragover',e=>{e.preventDefault();if(draggingIndex!==null){showBagDropPreview(slot,bagDropIndex(slot,e))}else slot.classList.add('drag-over')});
+  slot.addEventListener('dragleave',()=>{slot.classList.remove('drag-over')});
+  slot.addEventListener('drop',e=>{e.preventDefault();clearBagDropPreview();slot.classList.remove('drag-over');cancelTabHover();const from=Number(e.dataTransfer.getData('text/plain'));moveBagItem(from,resolveBagDropTarget(from,bagDropIndex(slot,e)))});
+  slot.onclick=()=>{
+   if(selectedIndex!==null&&selectedIndex!==index&&inventory[selectedIndex]&&!item){moveBagItem(selectedIndex,index);return}
+   selectBagItem(index)
+  };
+  grid.appendChild(slot);
+ }
+}
+function sortPreview(){
+ const start=tab*BAG_PER_PAGE;
+ const items=inventory.slice(start,start+BAG_PER_PAGE).filter(Boolean).sort((a,b)=>itemName(a).localeCompare(itemName(b),'pl'));
+ const draft=inventory.slice();
+ for(let i=start;i<start+BAG_PER_PAGE;i++)draft[i]=null;
+ for(const item of items){const i=findSpace(item,draft,tab);if(i<0){showMessage('Sortowanie przerwane: brakuje miejsca dla dużych przedmiotów.');return}draft[i]=item}
+ inventory=draft;saveInventory();selectedIndex=null;renderBag();showMessage('Posortowano zakładkę '+(tab+1)+'.');
+}
 function toggleSelectMode(){selectMode=!selectMode;document.getElementById('selectButton').textContent=selectMode?'Zakończ wybór':'Zaznacz';showMessage(selectMode?'Kliknij przedmiot, aby go podświetlić.':'Zakończono zaznaczanie.')}
-loadData();
+function loadData(){try{const slots=JSON.parse(localStorage.getItem('idleSlots_'+loggedUser)||'[]');const data=Array.isArray(slots)?slots[activeSlot]:null;if(!data?.hero){document.getElementById('heroStatus').textContent='Nie znaleziono postaci.';return}hero=data.hero;const rawClass=String(hero.characterClass??hero.klasa??hero.class??hero.race??'').toLowerCase();document.body.dataset.heroTheme=rawClass.includes('łow')||rawClass.includes('low')?'lowca':rawClass.includes('devil')?'devil':rawClass.includes('demon')?'demon':'lowca';const genderValue=String(hero.gender??hero.plec??hero.sex??hero.characterGender??hero.płeć??'').toLowerCase();const female=/kobiet|female|żeń|zens|woman/.test(genderValue);document.getElementById('gearGrid').dataset.gender=female?'female':'male';inventory=Array.isArray(data.inventory)?data.inventory:[];
+ let migrated=false,overflow=0;
+ for(let i=BAG_CAPACITY;i<inventory.length;i++)if(inventory[i]){
+  const free=inventory.findIndex((v,j)=>j<BAG_CAPACITY&&!v);
+  if(free>=0){inventory[free]=inventory[i];inventory[i]=null;migrated=true}else overflow++;
+ }
+ if(mergeStacks(inventory))migrated=true;
+ const bagRepair=repairBagFootprints(inventory);
+ if(bagRepair.ok&&bagRepair.changed){
+  // Zachowaj oryginalny układ, zanim poprawka przestawi kolidujące przedmioty.
+  const backupKey='devilsBagBeforeGridRepair_v1_'+loggedUser+'_'+activeSlot;
+  if(!localStorage.getItem(backupKey))localStorage.setItem(backupKey,JSON.stringify(inventory));
+  inventory=bagRepair.items;migrated=true;
+ }
+ if(migrated)saveInventory();
+ if(!bagRepair.ok)showMessage('Brak miejsca na naprawę układu kratek. Nie usunięto żadnego przedmiotu.');
+ else if(bagRepair.changed)showMessage('Naprawiono kolizje kratek: przeniesiono '+bagRepair.moved+' przedmiotów do wolnych pól.');
+ if(overflow)showMessage('Uwaga: '+overflow+' przedmiotów z dawnego inwentarza 400 miejsc nie mieści się w nowym. Pozostały zapisane, ale nie są widoczne. Zwolnij miejsce przed dalszą grą.');
+ let main=readObj(GEAR_KEY);let changed=false;for(const [slot,item] of Object.entries(main)){if(item&&DEMO_NAMES.has(item.name)){delete main[slot];changed=true}}if(changed)localStorage.setItem(GEAR_KEY,JSON.stringify(main));giveStarterChest();giveQualityGift();loadGear();document.getElementById('heroStatus').textContent='Postać: '+(hero.nick||hero.nickname||hero.name||hero.characterClass||'Bohater')+' · Poziom '+(hero.level??1);renderBag()}catch(e){console.error(e);document.getElementById('heroStatus').textContent='Nie udało się odczytać ekwipunku.'}}
+// Skrypty defer (w tym dymki.js) muszą zakończyć ładowanie przed pierwszym renderem.
+if(document.readyState === "loading") {
+ document.addEventListener("DOMContentLoaded", loadData, {once:true});
+} else {
+ loadData();
+}
 </script>
+
 </body></html>
